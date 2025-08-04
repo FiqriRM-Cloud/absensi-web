@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Hadir Siswa Interaktif</title>
+    <!-- CDN untuk xlsx dan file-saver untuk fitur Export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* Gaya Umum */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for longer content */
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px; /* Space at the bottom */
+        }
+
+        /* Header */
+        .header {
+            background-image: linear-gradient(to right, #0a74ee, #7a6cd6);
+            color: black;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        .teacher-info {
+            text-align: right;
+        }
+        .teacher-info .name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .teacher-info .role {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .date-input {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .date-input:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1); /* Make calendar icon white */
+        }
+
+        /* Konten Utama */
+        .main-content {
+            padding: 30px;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 15px; /* Space between items */
+        }
+        .controls h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #333333;
+            margin: 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Tombol */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn-green { background-color: #28a745; color: #fff; }
+        .btn-green:hover { background-color: #218838; transform: translateY(-1px); }
+        .btn-blue { background-color: #007bff; color: #fff; }
+        .btn-blue:hover { background-color: #0069d9; transform: translateY(-1px); }
+        .btn-red { background-color: #dc3545; color: #fff; } /* Gaya baru untuk tombol logout */
+        .btn-red:hover { background-color: #c82333; transform: translateY(-1px); }
+
+
+        /* Tabel */
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate; /* For rounded corners */
+            border-spacing: 0; /* For separate */
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+        th {
+            background-color: #f8f9fa;
+            text-transform: uppercase;
+            color: #6c757d;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        th:first-child { border-top-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; }
+        tr:last-child td { border-bottom: none; }
+        tbody tr:hover {
+            background-color: #f6f6f6;
+        }
+        
+        /* Tombol Status Kehadiran di Tabel */
+        .status-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap; /* Allow wrapping for many buttons */
+            justify-content: center;
+        }
+        .status-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #ced4da;
+            background-color: #e9ecef;
+            color: #495057;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .status-btn.active-hadir { background-color: #28a745; color: #fff; border-color: #28a745; }
+        .status-btn.active-sakit { background-color: #ffc107; color: #343a40; border-color: #ffc107; }
+        .status-btn.active-izin { background-color: #007bff; color: #fff; border-color: #007bff; }
+        .status-btn.active-alpa { background-color: #dc3545; color: #fff; border-color: #dc3545; }
+        .status-btn.active-tk { background-color: #343a40; color: #fff; border-color: #343a40; }
+        
+        .status-btn:not(.active-hadir):not(.active-sakit):not(.active-izin):not(.active-alpa):not(.active-tk):hover {
+            background-color: #d1d5db;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 20px 30px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .modal-content h2 {
+            font-size: 1.8rem;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+        }
+        .modal-button {
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+        .modal-button:hover {
+            background-color: #3a7bd5;
+        }
+
+        /* Bagian Tambah Siswa */
+        .add-student-section {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .add-student-section input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+        .add-student-section button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background-color: #6c757d; /* Dark gray for add button */
+            color: #fff;
+            transition: background-color 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .add-student-section button:hover {
+            background-color: #5a6268;
+        }
+
+        /* Tombol Hapus Siswa */
+        .delete-btn {
+            background-color: #dc3545; /* Red for delete */
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* Animasi */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .teacher-info {
+                text-align: left;
+                width: 100%;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .action-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .btn, .status-btn, .modal-button {
+                width: auto; /* Reset width for buttons */
+                flex-grow: 1; /* Allow buttons to grow */
+            }
+            .status-buttons {
+                justify-content: space-between;
+            }
+            .add-student-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .add-student-section input, .add-student-section button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Modal Input Data Awal -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Masukkan Data Kelas</h2>
+            <form id="info-form">
+                <div class="form-group">
+                    <label for="teacherName">Nama Guru</label>
+                    <input type="text" id="teacherName" placeholder="Contoh: Ibu Budiarti" required>
+                </div>
+                <div class="form-group">
+                    <label for="className">Nama Kelas</label>
+                    <input type="text" id="className" placeholder="Contoh: Kelas 10A" required>
+                </div>
+                <button type="submit" class="modal-button">Mulai Daftar Hadir</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Aplikasi Daftar Hadir Utama -->
+    <div id="main-app" class="container" style="display: none;">
+        <div class="header">
+            <div>
+                <h1>Daftar Hadir Siswa</h1>
+                <p id="class-name-display"></p>
+            </div>
+            <div class="teacher-info">
+                <p class="name" id="teacher-name-display"></p>
+                <p class="role">Wali Kelas</p>
+                <input type="date" id="attendance-date" class="date-input">
+                <button id="logout-btn" class="btn btn-red" style="margin-top: 10px;">Log Out</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="controls">
+                <h2>Daftar Siswa</h2>
+                <div class="action-buttons">
+                    <button id="mark-all-present" class="btn btn-green">Hadir Semua</button>
+                    <button id="export-excel" class="btn btn-blue">Export ke Excel</button>
+                </div>
+            </div>
+
+            <!-- Bagian Tambah Siswa -->
+            <div class="add-student-section">
+                <input type="text" id="new-student-name" placeholder="Nama siswa baru">
+                <button id="add-student-btn">Tambah Siswa</button>
+            </div>
+
+            <div class="table-container">
+                <table id="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Nama Siswa</th>
+                            <th style="text-align: center;">Status Kehadiran</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-list">
+                        <!-- Data siswa akan di-inject di sini oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Setiap kehadiranmu adalah langkah maju menuju masa depan cerah. Rajinlah belajar, gapai impianmu!</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Data siswa awal (bisa dikosongkan jika ingin input manual sepenuhnya)
+            const initialStudentData = []; // Mengosongkan data awal agar bisa input manual sepenuhnya
+
+            // Inisialisasi data dari localStorage atau default
+            let students = JSON.parse(localStorage.getItem('students')) || initialStudentData;
+            let teacherName = localStorage.getItem('teacherName') || '';
+            let className = localStorage.getItem('className') || '';
+            let currentDate = localStorage.getItem('date') || new Date().toISOString().slice(0, 10);
+
+            // Dapatkan elemen DOM
+            const modalOverlay = document.getElementById('modal-overlay');
+            const infoForm = document.getElementById('info-form');
+            const teacherNameInput = document.getElementById('teacherName');
+            const classNameInput = document.getElementById('className');
+            const mainApp = document.getElementById('main-app');
+            const teacherNameDisplay = document.getElementById('teacher-name-display');
+            const classNameDisplay = document.getElementById('class-name-display');
+            const attendanceDateInput = document.getElementById('attendance-date');
+            const studentList = document.getElementById('student-list');
+            const markAllPresentBtn = document.getElementById('mark-all-present');
+            const exportExcelBtn = document.getElementById('export-excel');
+            const logoutBtn = document.getElementById('logout-btn'); // Tombol Log Out
+            
+            // Elemen untuk tambah siswa
+            const newStudentNameInput = document.getElementById('new-student-name');
+            const addStudentBtn = document.getElementById('add-student-btn');
+
+            // Fungsi untuk merender daftar siswa
+            function renderStudents() {
+                studentList.innerHTML = ''; // Kosongkan daftar sebelumnya
+                students.forEach((student, index) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${student.name} <button class="delete-btn" data-id="${student.id}">Hapus</button></td>
+                        <td style="text-align: center;">
+                            <div class="status-buttons">
+                                <button class="status-btn ${student.attendance === 'Hadir' ? 'active-hadir' : ''}" data-status="Hadir" data-id="${student.id}">Hadir</button>
+                                <button class="status-btn ${student.attendance === 'Sakit' ? 'active-sakit' : ''}" data-status="Sakit" data-id="${student.id}">Sakit</button>
+                                <button class="status-btn ${student.attendance === 'Izin' ? 'active-izin' : ''}" data-status="Izin" data-id="${student.id}">Izin</button>
+                                <button class="status-btn ${student.attendance === 'Alpa' ? 'active-alpa' : ''}" data-status="Alpa" data-id="${student.id}">Alpa</button>
+                                <button class="status-btn ${student.attendance === 'Tanpa Keterangan' ? 'active-tk' : ''}" data-status="Tanpa Keterangan" data-id="${student.id}">TK</button>
+                            </div>
+                        </td>
+                    `;
+                    studentList.appendChild(tr);
+                });
+                localStorage.setItem('students', JSON.stringify(students)); // Simpan ke localStorage
+            }
+
+            // Fungsi untuk memperbarui tampilan header
+            function updateHeaderDisplay() {
+                teacherNameDisplay.textContent = teacherName;
+                classNameDisplay.textContent = className;
+                attendanceDateInput.value = currentDate;
+                localStorage.setItem('teacherName', teacherName);
+                localStorage.setItem('className', className);
+                localStorage.setItem('date', currentDate);
+            }
+
+            // Fungsi Log Out (MODIFIKASI: DATA SISWA TIDAK DIHAPUS)
+            function logout() {
+                if (confirm('Apakah Anda yakin ingin keluar dan mengganti data kelas?')) { 
+                    localStorage.removeItem('teacherName');
+                    localStorage.removeItem('className');
+                    localStorage.removeItem('date');
+                    // localStorage.removeItem('students'); // BARIS INI DIHAPUS ATAU DIKOMENTARI
+                    
+                    // Reset variabel JS yang terkait dengan header saja
+                    teacherName = '';
+                    className = '';
+                    currentDate = new Date().toISOString().slice(0, 10);
+                    // students = initialStudentData; // BARIS INI DIHAPUS ATAU DIKOMENTARI
+
+                    // Tampilkan modal dan sembunyikan aplikasi utama
+                    modalOverlay.style.display = 'flex';
+                    mainApp.style.display = 'none';
+
+                    // Kosongkan input di modal untuk sesi baru
+                    teacherNameInput.value = '';
+                    classNameInput.value = '';
+                    teacherNameInput.focus(); // Fokus ke input pertama
+
+                    // Data siswa yang sudah ada akan tetap di localStorage dan akan dimuat saat sesi baru dimulai
+                    // Jika Anda ingin data siswa di-reset hanya saat pertama kali aplikasi dibuka (bukan saat logout),
+                    // Anda bisa membiarkan `initialStudentData` tetap kosong dan hanya memuat dari localStorage.
+                }
+            }
+
+            // Tampilkan modal jika data guru/kelas belum ada
+            if (teacherName && className) {
+                modalOverlay.style.display = 'none';
+                mainApp.style.display = 'block';
+                updateHeaderDisplay();
+                renderStudents();
+            } else {
+                modalOverlay.style.display = 'flex';
+                // Isi input modal dengan nilai yang ada jika ada (misal dari refresh halaman)
+                teacherNameInput.value = teacherName;
+                classNameInput.value = className;
+            }
+
+            // Event Listener untuk Form Input Guru/Kelas
+            infoForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                teacherName = teacherNameInput.value.trim();
+                className = classNameInput.value.trim();
+                if (teacherName && className) {
+                    modalOverlay.style.display = 'none';
+                    mainApp.style.display = 'block';
+                    updateHeaderDisplay();
+                    renderStudents();
+                } else {
+                    alert('Nama Guru dan Nama Kelas tidak boleh kosong!');
+                }
+            });
+
+            // Event Listener untuk Tombol Status Kehadiran dan Hapus
+            studentList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('status-btn')) {
+                    const studentId = parseInt(e.target.dataset.id);
+                    const newStatus = e.target.dataset.status;
+                    students = students.map(student => {
+                        if (student.id === studentId) {
+                            return { ...student, attendance: newStatus };
+                        }
+                        return student;
+                    });
+                    renderStudents(); // Render ulang untuk memperbarui tampilan
+                } else if (e.target.classList.contains('delete-btn')) {
+                    const studentIdToDelete = parseInt(e.target.dataset.id);
+                    if (confirm('Apakah Anda yakin ingin menghapus siswa ini?')) { 
+                        students = students.filter(student => student.id !== studentIdToDelete);
+                        renderStudents(); // Render ulang daftar siswa
+                    }
+                }
+            });
+
+            // Event Listener untuk Tombol "Hadir Semua"
+            markAllPresentBtn.addEventListener('click', () => {
+                students = students.map(student => ({ ...student, attendance: 'Hadir' }));
+                renderStudents();
+            });
+
+            // Event Listener untuk Perubahan Tanggal
+            attendanceDateInput.addEventListener('change', (e) => {
+                currentDate = e.target.value;
+                localStorage.setItem('date', currentDate);
+                updateHeaderDisplay();
+            });
+
+            // Event Listener untuk Tambah Siswa Baru
+            addStudentBtn.addEventListener('click', () => {
+                const newName = newStudentNameInput.value.trim();
+                if (newName) {
+                    const newId = Date.now(); // ID unik berdasarkan timestamp
+                    students.push({ id: newId, name: newName });
+                    newStudentNameInput.value = ''; // Kosongkan input
+                    renderStudents(); // Render ulang daftar siswa
+                } else {
+                    alert('Nama siswa tidak boleh kosong!');
+                }
+            });
+
+            // Event Listener untuk Tombol Log Out
+            logoutBtn.addEventListener('click', logout);
+
+            // Fungsi Export ke Excel
+            exportExcelBtn.addEventListener('click', () => {
+                console.log('Tombol Export Excel diklik!'); // Log untuk debugging
+                
+                // Pastikan XLSX dan saveAs tersedia
+                if (typeof XLSX === 'undefined' || typeof saveAs === 'undefined') {
+                    console.error('Library XLSX atau FileSaver tidak dimuat dengan benar!');
+                    alert('Fitur Export Excel tidak tersedia. Harap periksa koneksi internet Anda atau coba lagi.');
+                    return;
+                }
+
+                // Data header informasi di atas tabel
+                const headerInfo = [
+                    ['Daftar Hadir Siswa'],
+                    [`Kelas: ${className}`],
+                    [`Wali Kelas: ${teacherName}`],
+                    [`Tanggal: ${currentDate}`],
+                    [' '], // Baris kosong sebagai pemisah
+                ];
+
+                // Header tabel aktual
+                const tableHeaders = ['No.', 'Nama Siswa', 'Status Kehadiran'];
+
+                // Data siswa yang akan diekspor
+                const studentExportData = students.map((student, index) => [
+                    index + 1,
+                    student.name,
+                    student.attendance || 'Belum Terisi',
+                ]);
+
+                // Gabungkan semua data menjadi satu array of arrays
+                const fullExportData = [...headerInfo, tableHeaders, ...studentExportData];
+
+                // Buat worksheet dari array of arrays
+                const ws = XLSX.utils.aoa_to_sheet(fullExportData);
+                console.log('Worksheet berhasil dibuat:', ws); // Log worksheet
+                
+                // Sesuaikan lebar kolom
+                const wscols = [
+                    {wch: 5}, // No.
+                    {wch: 30}, // Nama Siswa
+                    {wch: 20}  // Status Kehadiran
+                ];
+                ws['!cols'] = wscols;
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Daftar Hadir');
+
+                try {
+                    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+                    
+                    const fileName = `Daftar-Hadir-${className}-${currentDate}.xlsx`;
+                    saveAs(dataBlob, fileName);
+                    console.log('File Excel berhasil diunduh:', fileName); // Log sukses
+                } catch (error) {
+                    console.error('Terjadi kesalahan saat mengunduh file Excel:', error); // Log error
+                    alert('Gagal mengunduh file Excel. Periksa konsol browser untuk detail.');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
