@@ -16,7 +16,7 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align to top for longer content */
+            align-items: flex-start;
             min-height: 100vh;
         }
         .container {
@@ -26,84 +26,57 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            margin-bottom: 20px; /* Space at the bottom */
+            margin-bottom: 20px;
         }
+        .hidden { display: none; }
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .gap-15 { gap: 15px; }
 
         /* Header */
         .header {
-            background-image: linear-gradient(to right, #0a74ee, #7a6cd6);
-            color: black;
+            background-color: rgba(248, 249, 250, 0.8); /* Warna abu-abu terang transparan */
+            color: #333333; /* Warna tulisan hitam */
             padding: 25px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
+            backdrop-filter: blur(5px); /* Efek blur untuk transparansi */
         }
-        .header h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 0;
-            letter-spacing: -0.5px;
-        }
-        .header p {
-            margin: 0.5rem 0 0;
-            opacity: 0.9;
-            font-size: 0.95rem;
-        }
-        .teacher-info {
-            text-align: right;
-        }
-        .teacher-info .name {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        .teacher-info .role {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        .date-input {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
+        .header h1 { font-size: 2.2rem; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+        .header p { margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.95rem; }
+        .teacher-info { text-align: right; }
+        .teacher-info .name { font-size: 1.3rem; font-weight: 600; margin-bottom: 5px; }
+        .teacher-info .role { font-size: 0.9rem; opacity: 0.8; }
+        .header .date-input {
+            background-color: rgba(255, 255, 255, 0.5); /* Latar belakang input sedikit transparan */
+            color: #333333; /* Warna tulisan hitam */
             padding: 8px 12px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(0, 0, 0, 0.2);
             font-size: 0.9rem;
             margin-top: 10px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        .date-input:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-        .date-input::-webkit-calendar-picker-indicator {
-            filter: invert(1); /* Make calendar icon white */
-        }
+        .header .date-input:hover { background-color: rgba(255, 255, 255, 0.7); }
+        .header .date-input::-webkit-calendar-picker-indicator { filter: none; } /* Jangan invert warna ikon */
 
         /* Konten Utama */
-        .main-content {
-            padding: 30px;
-        }
+        .main-content { padding: 30px; }
         .controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 25px;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
-            gap: 15px; /* Space between items */
-        }
-        .controls h2 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            color: #333333;
-            margin: 0;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
             flex-wrap: wrap;
+            gap: 15px;
         }
+        .controls h2 { font-size: 1.6rem; font-weight: 600; color: #333333; margin: 0; }
+        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
 
         /* Tombol */
         .btn {
@@ -120,49 +93,22 @@
         .btn-green:hover { background-color: #218838; transform: translateY(-1px); }
         .btn-blue { background-color: #007bff; color: #fff; }
         .btn-blue:hover { background-color: #0069d9; transform: translateY(-1px); }
-        .btn-red { background-color: #dc3545; color: #fff; } /* Gaya baru untuk tombol logout */
+        .btn-red { background-color: #dc3545; color: #fff; }
         .btn-red:hover { background-color: #c82333; transform: translateY(-1px); }
-
+        .btn-secondary { background-color: #6c757d; color: #fff; }
+        .btn-secondary:hover { background-color: #5a6268; transform: translateY(-1px); }
 
         /* Tabel */
-        .table-container {
-            overflow-x: auto;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-        }
-        table {
-            width: 100%;
-            border-collapse: separate; /* For rounded corners */
-            border-spacing: 0; /* For separate */
-            font-size: 0.9rem;
-        }
-        th, td {
-            padding: 15px 20px;
-            text-align: left;
-            vertical-align: middle;
-            border-bottom: 1px solid #e9ecef;
-        }
-        th {
-            background-color: #f8f9fa;
-            text-transform: uppercase;
-            color: #6c757d;
-            font-weight: 600;
-            white-space: nowrap;
-        }
+        .table-container { overflow-x: auto; border: 1px solid #e0e0e0; border-radius: 8px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.9rem; }
+        th, td { padding: 15px 20px; text-align: left; vertical-align: middle; border-bottom: 1px solid #e9ecef; }
+        th { background-color: #f8f9fa; text-transform: uppercase; color: #6c757d; font-weight: 600; white-space: nowrap; }
         th:first-child { border-top-left-radius: 8px; }
         th:last-child { border-top-right-radius: 8px; }
         tr:last-child td { border-bottom: none; }
-        tbody tr:hover {
-            background-color: #f6f6f6;
-        }
+        tbody tr:hover { background-color: #f6f6f6; }
         
-        /* Tombol Status Kehadiran di Tabel */
-        .status-buttons {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap; /* Allow wrapping for many buttons */
-            justify-content: center;
-        }
+        .status-buttons { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
         .status-btn {
             padding: 8px 12px;
             border-radius: 6px;
@@ -181,178 +127,92 @@
         .status-btn.active-alpa { background-color: #dc3545; color: #fff; border-color: #dc3545; }
         .status-btn.active-tk { background-color: #343a40; color: #fff; border-color: #343a40; }
         
-        .status-btn:not(.active-hadir):not(.active-sakit):not(.active-izin):not(.active-alpa):not(.active-tk):hover {
-            background-color: #d1d5db;
-        }
-
         /* Footer */
-        .footer {
-            padding: 20px 30px;
-            border-top: 1px solid #e9ecef;
-            text-align: center;
-            font-size: 0.85rem;
-            color: #6c757d;
-            background-color: #f8f9fa;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-        }
+        .footer { padding: 20px 30px; border-top: 1px solid #e9ecef; text-align: center; font-size: 0.85rem; color: #6c757d; background-color: #f8f9fa; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
 
         /* Modal */
         .modal-overlay {
-            display: flex;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center; align-items: center; z-index: 1000;
         }
         .modal-content {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
-            animation: fadeIn 0.3s ease-out;
+            background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 90%; max-width: 450px; text-align: center; animation: fadeIn 0.3s ease-out;
         }
-        .modal-content h2 {
-            font-size: 1.8rem;
-            color: #333333;
-            margin-bottom: 20px;
+        .modal-content h2 { font-size: 1.8rem; color: #333333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #555555; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 1rem; box-sizing: border-box;
         }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #555555;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #4a90e2; box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
         }
         .modal-button {
-            background-color: #4a90e2;
-            color: #ffffff;
-            padding: 12px 25px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1.1rem;
-            transition: background-color 0.3s ease;
+            background-color: #4a90e2; color: #ffffff; padding: 12px 25px; border-radius: 8px; border: none; font-weight: 600;
+            cursor: pointer; width: 100%; font-size: 1.1rem; transition: background-color 0.3s ease;
         }
-        .modal-button:hover {
-            background-color: #3a7bd5;
-        }
+        .modal-button:hover { background-color: #3a7bd5; }
 
         /* Bagian Tambah Siswa */
         .add-student-section {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
+            background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px;
+            margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
         }
-        .add-student-section input {
-            flex-grow: 1;
-            padding: 10px 15px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            font-size: 0.95rem;
-        }
+        .add-student-section input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; }
         .add-student-section button {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            background-color: #6c757d; /* Dark gray for add button */
-            color: #fff;
-            transition: background-color 0.3s ease;
-            font-size: 0.95rem;
+            padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;
+            background-color: #6c757d; color: #fff; transition: background-color 0.3s ease; font-size: 0.95rem;
         }
-        .add-student-section button:hover {
-            background-color: #5a6268;
-        }
+        .add-student-section button:hover { background-color: #5a6268; }
 
         /* Tombol Hapus Siswa */
         .delete-btn {
-            background-color: #dc3545; /* Red for delete */
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-left: 10px;
-            transition: background-color 0.3s ease;
+            background-color: #dc3545; color: #fff; padding: 6px 10px; border-radius: 6px; border: none;
+            cursor: pointer; font-size: 0.8rem; margin-left: 10px; transition: background-color 0.3s ease;
         }
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
-
+        .delete-btn:hover { background-color: #c82333; }
+        
         /* Animasi */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Responsif */
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            .teacher-info {
-                text-align: left;
-                width: 100%;
-            }
-            .controls {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .action-buttons {
-                width: 100%;
-                justify-content: flex-start;
-            }
-            .btn, .status-btn, .modal-button {
-                width: auto; /* Reset width for buttons */
-                flex-grow: 1; /* Allow buttons to grow */
-            }
-            .status-buttons {
-                justify-content: space-between;
-            }
-            .add-student-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .add-student-section input, .add-student-section button {
-                width: 100%;
-            }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .teacher-info { text-align: left; width: 100%; }
+            .controls { flex-direction: column; align-items: flex-start; }
+            .action-buttons { width: 100%; justify-content: flex-start; }
+            .btn, .status-btn, .modal-button { width: auto; flex-grow: 1; }
+            .status-buttons { justify-content: space-between; }
+            .add-student-section { flex-direction: column; align-items: stretch; }
+            .add-student-section input, .add-student-section button { width: 100%; }
+        }
+
+        .summary-container {
+            background-color: #f8f9fa;
+            border-left: 5px solid #007bff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .summary-container pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 1rem;
+            color: #333;
+            margin: 0;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -386,7 +246,6 @@
             <div class="teacher-info">
                 <p class="name" id="teacher-name-display"></p>
                 <p class="role">Wali Kelas</p>
-                <input type="date" id="attendance-date" class="date-input">
                 <button id="logout-btn" class="btn btn-red" style="margin-top: 10px;">Log Out</button>
             </div>
         </div>
@@ -395,31 +254,72 @@
             <div class="controls">
                 <h2>Daftar Siswa</h2>
                 <div class="action-buttons">
-                    <button id="mark-all-present" class="btn btn-green">Hadir Semua</button>
-                    <button id="export-excel" class="btn btn-blue">Export ke Excel</button>
+                    <button id="view-recap-btn" class="btn btn-secondary">Lihat Rekap Bulanan</button>
                 </div>
             </div>
 
-            <!-- Bagian Tambah Siswa -->
-            <div class="add-student-section">
-                <input type="text" id="new-student-name" placeholder="Nama siswa baru">
-                <button id="add-student-btn">Tambah Siswa</button>
+            <!-- Tampilan Daftar Hadir Harian (Daily Attendance View) -->
+            <div id="daily-view">
+                <div class="flex items-center justify-between gap-15" style="margin-bottom: 25px; flex-wrap: wrap;">
+                    <input type="date" id="attendance-date" class="date-input" style="color: #495057; background-color: #fff; border: 1px solid #ced4da; margin-top: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div class="action-buttons">
+                        <button id="mark-all-present" class="btn btn-green">Hadir Semua</button>
+                        <button id="export-excel" class="btn btn-blue">Export Harian</button>
+                    </div>
+                </div>
+            
+                <div class="add-student-section">
+                    <input type="text" id="new-student-name" placeholder="Nama siswa baru">
+                    <button id="add-student-btn">Tambah Siswa</button>
+                </div>
+            
+                <div class="table-container">
+                    <table id="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Nama Siswa</th>
+                                <th style="text-align: center;">Status Kehadiran</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-list"></tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="table-container">
-                <table id="attendance-table">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Nama Siswa</th>
-                            <th style="text-align: center;">Status Kehadiran</th>
-                        </tr>
-                    </thead>
-                    <tbody id="student-list">
-                        <!-- Data siswa akan di-inject di sini oleh JavaScript -->
-                    </tbody>
-                </table>
+            <!-- Tampilan Rekap Bulanan (Monthly Recap View) -->
+            <div id="monthly-recap-view" class="hidden">
+                <div class="flex items-center justify-between gap-15" style="margin-bottom: 25px; flex-wrap: wrap;">
+                    <div class="flex items-center gap-15">
+                        <select id="month-select" class="date-input" style="color: #495057; background-color: #fff; border: 1px solid #ced4da; margin-top: 0;">
+                        </select>
+                        <select id="year-select" class="date-input" style="color: #495057; background-color: #fff; border: 1px solid #ced4da; margin-top: 0;">
+                        </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="export-recap-btn" class="btn btn-blue">Export Rekap</button>
+                        <button id="generate-summary-btn" class="btn btn-blue">✨ Ringkasan Absensi</button>
+                    </div>
+                </div>
+                <div class="summary-container hidden" id="summary-output">
+                    <div id="loading-spinner" class="loader hidden"></div>
+                    <pre id="summary-text"></pre>
+                </div>
+                <div class="table-container">
+                    <table id="recap-table">
+                        <thead>
+                            <tr id="recap-header-row">
+                                <th rowspan="2">No.</th>
+                                <th rowspan="2">Nama Siswa</th>
+                                <th rowspan="2">Total Hadir</th>
+                                <!-- Kolom tanggal akan di-generate oleh JS -->
+                            </tr>
+                        </thead>
+                        <tbody id="recap-student-list"></tbody>
+                    </table>
+                </div>
             </div>
+
         </div>
         <div class="footer">
             <p>Setiap kehadiranmu adalah langkah maju menuju masa depan cerah. Rajinlah belajar, gapai impianmu!</p>
@@ -428,16 +328,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Data siswa awal (bisa dikosongkan jika ingin input manual sepenuhnya)
-            const initialStudentData = []; // Mengosongkan data awal agar bisa input manual sepenuhnya
-
-            // Inisialisasi data dari localStorage atau default
+            const initialStudentData = [];
             let students = JSON.parse(localStorage.getItem('students')) || initialStudentData;
             let teacherName = localStorage.getItem('teacherName') || '';
             let className = localStorage.getItem('className') || '';
             let currentDate = localStorage.getItem('date') || new Date().toISOString().slice(0, 10);
+            let historicalAttendance = JSON.parse(localStorage.getItem('historicalAttendance')) || {};
 
-            // Dapatkan elemen DOM
             const modalOverlay = document.getElementById('modal-overlay');
             const infoForm = document.getElementById('info-form');
             const teacherNameInput = document.getElementById('teacherName');
@@ -449,88 +346,233 @@
             const studentList = document.getElementById('student-list');
             const markAllPresentBtn = document.getElementById('mark-all-present');
             const exportExcelBtn = document.getElementById('export-excel');
-            const logoutBtn = document.getElementById('logout-btn'); // Tombol Log Out
-            
-            // Elemen untuk tambah siswa
+            const logoutBtn = document.getElementById('logout-btn');
             const newStudentNameInput = document.getElementById('new-student-name');
             const addStudentBtn = document.getElementById('add-student-btn');
+            const viewRecapBtn = document.getElementById('view-recap-btn');
+            const dailyView = document.getElementById('daily-view');
+            const monthlyRecapView = document.getElementById('monthly-recap-view');
+            const monthSelect = document.getElementById('month-select');
+            const yearSelect = document.getElementById('year-select');
+            const recapHeaderRow = document.getElementById('recap-header-row');
+            const recapStudentList = document.getElementById('recap-student-list');
+            const exportRecapBtn = document.getElementById('export-recap-btn');
+            
+            const generateSummaryBtn = document.getElementById('generate-summary-btn');
+            const summaryOutputDiv = document.getElementById('summary-output');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const summaryTextPre = document.getElementById('summary-text');
 
-            // Fungsi untuk merender daftar siswa
-            function renderStudents() {
-                studentList.innerHTML = ''; // Kosongkan daftar sebelumnya
+
+            const months = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth();
+
+            // ===================================
+            // FUNGSI UTAMA
+            // ===================================
+
+            function renderDailyStudents() {
+                studentList.innerHTML = '';
+                const todaysAttendance = historicalAttendance[currentDate] || {};
+                
                 students.forEach((student, index) => {
+                    const studentStatus = todaysAttendance[student.id] || 'Belum Terisi';
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${index + 1}</td>
                         <td>${student.name} <button class="delete-btn" data-id="${student.id}">Hapus</button></td>
                         <td style="text-align: center;">
                             <div class="status-buttons">
-                                <button class="status-btn ${student.attendance === 'Hadir' ? 'active-hadir' : ''}" data-status="Hadir" data-id="${student.id}">Hadir</button>
-                                <button class="status-btn ${student.attendance === 'Sakit' ? 'active-sakit' : ''}" data-status="Sakit" data-id="${student.id}">Sakit</button>
-                                <button class="status-btn ${student.attendance === 'Izin' ? 'active-izin' : ''}" data-status="Izin" data-id="${student.id}">Izin</button>
-                                <button class="status-btn ${student.attendance === 'Alpa' ? 'active-alpa' : ''}" data-status="Alpa" data-id="${student.id}">Alpa</button>
-                                <button class="status-btn ${student.attendance === 'Tanpa Keterangan' ? 'active-tk' : ''}" data-status="Tanpa Keterangan" data-id="${student.id}">TK</button>
+                                <button class="status-btn ${studentStatus === 'Hadir' ? 'active-hadir' : ''}" data-status="Hadir" data-id="${student.id}">Hadir</button>
+                                <button class="status-btn ${studentStatus === 'Sakit' ? 'active-sakit' : ''}" data-status="Sakit" data-id="${student.id}">Sakit</button>
+                                <button class="status-btn ${studentStatus === 'Izin' ? 'active-izin' : ''}" data-status="Izin" data-id="${student.id}">Izin</button>
+                                <button class="status-btn ${studentStatus === 'Alpa' ? 'active-alpa' : ''}" data-status="Alpa" data-id="${student.id}">Alpa</button>
+                                <button class="status-btn ${studentStatus === 'Tanpa Keterangan' ? 'active-tk' : ''}" data-status="Tanpa Keterangan" data-id="${student.id}">TK</button>
                             </div>
                         </td>
                     `;
                     studentList.appendChild(tr);
                 });
-                localStorage.setItem('students', JSON.stringify(students)); // Simpan ke localStorage
             }
 
-            // Fungsi untuk memperbarui tampilan header
+            function renderMonthlyRecap() {
+                recapStudentList.innerHTML = '';
+                const selectedMonth = parseInt(monthSelect.value);
+                const selectedYear = parseInt(yearSelect.value);
+                const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+                
+                let headerHTML = '<th>No.</th><th>Nama Siswa</th><th>Total Hadir</th>';
+                for (let i = 1; i <= daysInMonth; i++) {
+                    headerHTML += `<th class="text-center">${i}</th>`;
+                }
+                recapHeaderRow.innerHTML = headerHTML;
+                
+                students.forEach((student, index) => {
+                    const tr = document.createElement('tr');
+                    let totalHadir = 0;
+                    let rowHTML = `<td>${index + 1}</td><td>${student.name}</td>`;
+                    
+                    let statusHTML = '';
+                    for (let i = 1; i <= daysInMonth; i++) {
+                        const day = i < 10 ? `0${i}` : `${i}`;
+                        const dateKey = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${day}`;
+                        const attendance = historicalAttendance[dateKey] ? historicalAttendance[dateKey][student.id] : '-';
+                        
+                        if (attendance === 'Hadir') {
+                            totalHadir++;
+                        }
+                        statusHTML += `<td class="text-center">${attendance ? attendance.substring(0, 1) : '-'}</td>`;
+                    }
+                    
+                    rowHTML += `<td>${totalHadir}</td>${statusHTML}`;
+                    tr.innerHTML = rowHTML;
+                    recapStudentList.appendChild(tr);
+                });
+            }
+
             function updateHeaderDisplay() {
                 teacherNameDisplay.textContent = teacherName;
                 classNameDisplay.textContent = className;
-                attendanceDateInput.value = currentDate;
                 localStorage.setItem('teacherName', teacherName);
                 localStorage.setItem('className', className);
                 localStorage.setItem('date', currentDate);
+                localStorage.setItem('students', JSON.stringify(students));
+                localStorage.setItem('historicalAttendance', JSON.stringify(historicalAttendance));
             }
 
-            // Fungsi Log Out (MODIFIKASI: DATA SISWA TIDAK DIHAPUS)
             function logout() {
-                if (confirm('Apakah Anda yakin ingin keluar dan mengganti data kelas?')) { 
+                if (confirm('Apakah Anda yakin ingin keluar dan mengganti data kelas?')) {
                     localStorage.removeItem('teacherName');
                     localStorage.removeItem('className');
                     localStorage.removeItem('date');
-                    // localStorage.removeItem('students'); // BARIS INI DIHAPUS ATAU DIKOMENTARI
-                    
-                    // Reset variabel JS yang terkait dengan header saja
                     teacherName = '';
                     className = '';
                     currentDate = new Date().toISOString().slice(0, 10);
-                    // students = initialStudentData; // BARIS INI DIHAPUS ATAU DIKOMENTARI
-
-                    // Tampilkan modal dan sembunyikan aplikasi utama
+                    students = JSON.parse(localStorage.getItem('students')) || initialStudentData;
                     modalOverlay.style.display = 'flex';
                     mainApp.style.display = 'none';
-
-                    // Kosongkan input di modal untuk sesi baru
                     teacherNameInput.value = '';
                     classNameInput.value = '';
-                    teacherNameInput.focus(); // Fokus ke input pertama
+                    teacherNameInput.focus();
+                }
+            }
+            
+            function toggleView(view) {
+                if (view === 'daily') {
+                    dailyView.classList.remove('hidden');
+                    monthlyRecapView.classList.add('hidden');
+                    viewRecapBtn.textContent = 'Lihat Rekap Bulanan';
+                    renderDailyStudents();
+                } else if (view === 'recap') {
+                    dailyView.classList.add('hidden');
+                    monthlyRecapView.classList.remove('hidden');
+                    viewRecapBtn.textContent = 'Kembali ke Harian';
+                    renderMonthlyRecap();
+                }
+            }
+            
+            // ===================================
+            // FUNGSI GEMINI API
+            // ===================================
+            async function generateAttendanceSummary() {
+                const selectedMonth = parseInt(monthSelect.value);
+                const selectedYear = parseInt(yearSelect.value);
+                const monthName = months[selectedMonth];
+            
+                // Tampilkan loading spinner
+                summaryOutputDiv.classList.remove('hidden');
+                loadingSpinner.classList.remove('hidden');
+                summaryTextPre.textContent = '';
+                
+                const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+                const attendanceData = {};
+            
+                // Kumpulkan data absensi untuk prompt
+                students.forEach(student => {
+                    attendanceData[student.name] = {
+                        Hadir: 0,
+                        Sakit: 0,
+                        Izin: 0,
+                        Alpa: 0,
+                        'Tanpa Keterangan': 0
+                    };
+                });
+            
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const day = i < 10 ? `0${i}` : `${i}`;
+                    const dateKey = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${day}`;
+                    const dailyAttendance = historicalAttendance[dateKey] || {};
+            
+                    students.forEach(student => {
+                        const status = dailyAttendance[student.id] || 'Belum Terisi';
+                        if (attendanceData[student.name][status] !== undefined) {
+                            attendanceData[student.name][status]++;
+                        }
+                    });
+                }
+            
+                // Buat prompt untuk Gemini
+                let prompt = `Anda adalah asisten guru. Berikan ringkasan absensi yang profesional dan objektif untuk kelas ${className} pada bulan ${monthName} ${selectedYear}. Fokus pada statistik utama dan tren. Data kehadiran per siswa sebagai berikut:\n`;
+                
+                for (const name in attendanceData) {
+                    prompt += `${name}: Hadir (${attendanceData[name].Hadir}), Sakit (${attendanceData[name].Sakit}), Izin (${attendanceData[name].Izin}), Alpa (${attendanceData[name].Alpa}), Tanpa Keterangan (${attendanceData[name]['Tanpa Keterangan']}).\n`;
+                }
 
-                    // Data siswa yang sudah ada akan tetap di localStorage dan akan dimuat saat sesi baru dimulai
-                    // Jika Anda ingin data siswa di-reset hanya saat pertama kali aplikasi dibuka (bukan saat logout),
-                    // Anda bisa membiarkan `initialStudentData` tetap kosong dan hanya memuat dari localStorage.
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+            
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+            
+                    const result = await response.json();
+                    
+                    let responseText = "Tidak dapat menghasilkan ringkasan.";
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        responseText = result.candidates[0].content.parts[0].text;
+                    }
+            
+                    summaryTextPre.textContent = responseText;
+                } catch (error) {
+                    console.error('Gemini API Error:', error);
+                    summaryTextPre.textContent = 'Maaf, terjadi kesalahan saat menghubungi API. Silakan coba lagi nanti.';
+                } finally {
+                    loadingSpinner.classList.add('hidden');
                 }
             }
 
-            // Tampilkan modal jika data guru/kelas belum ada
+
+            // ===================================
+            // EVENT LISTENERS
+            // ===================================
+
             if (teacherName && className) {
                 modalOverlay.style.display = 'none';
                 mainApp.style.display = 'block';
                 updateHeaderDisplay();
-                renderStudents();
+                renderDailyStudents();
             } else {
                 modalOverlay.style.display = 'flex';
-                // Isi input modal dengan nilai yang ada jika ada (misal dari refresh halaman)
                 teacherNameInput.value = teacherName;
                 classNameInput.value = className;
             }
 
-            // Event Listener untuk Form Input Guru/Kelas
             infoForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 teacherName = teacherNameInput.value.trim();
@@ -539,124 +581,218 @@
                     modalOverlay.style.display = 'none';
                     mainApp.style.display = 'block';
                     updateHeaderDisplay();
-                    renderStudents();
+                    renderDailyStudents();
                 } else {
                     alert('Nama Guru dan Nama Kelas tidak boleh kosong!');
                 }
             });
 
-            // Event Listener untuk Tombol Status Kehadiran dan Hapus
             studentList.addEventListener('click', (e) => {
                 if (e.target.classList.contains('status-btn')) {
                     const studentId = parseInt(e.target.dataset.id);
                     const newStatus = e.target.dataset.status;
-                    students = students.map(student => {
-                        if (student.id === studentId) {
-                            return { ...student, attendance: newStatus };
-                        }
-                        return student;
-                    });
-                    renderStudents(); // Render ulang untuk memperbarui tampilan
+                    
+                    if (!historicalAttendance[currentDate]) {
+                        historicalAttendance[currentDate] = {};
+                    }
+                    historicalAttendance[currentDate][studentId] = newStatus;
+                    localStorage.setItem('historicalAttendance', JSON.stringify(historicalAttendance));
+                    
+                    renderDailyStudents();
                 } else if (e.target.classList.contains('delete-btn')) {
                     const studentIdToDelete = parseInt(e.target.dataset.id);
-                    if (confirm('Apakah Anda yakin ingin menghapus siswa ini?')) { 
+                    if (confirm('Apakah Anda yakin ingin menghapus siswa ini?')) {
                         students = students.filter(student => student.id !== studentIdToDelete);
-                        renderStudents(); // Render ulang daftar siswa
+                        localStorage.setItem('students', JSON.stringify(students));
+                        for (const date in historicalAttendance) {
+                            if (historicalAttendance[date][studentIdToDelete]) {
+                                delete historicalAttendance[date][studentIdToDelete];
+                            }
+                        }
+                        localStorage.setItem('historicalAttendance', JSON.stringify(historicalAttendance));
+                        renderDailyStudents();
                     }
                 }
             });
 
-            // Event Listener untuk Tombol "Hadir Semua"
             markAllPresentBtn.addEventListener('click', () => {
-                students = students.map(student => ({ ...student, attendance: 'Hadir' }));
-                renderStudents();
+                if (!historicalAttendance[currentDate]) {
+                    historicalAttendance[currentDate] = {};
+                }
+                students.forEach(student => {
+                    historicalAttendance[currentDate][student.id] = 'Hadir';
+                });
+                localStorage.setItem('historicalAttendance', JSON.stringify(historicalAttendance));
+                renderDailyStudents();
             });
 
-            // Event Listener untuk Perubahan Tanggal
             attendanceDateInput.addEventListener('change', (e) => {
                 currentDate = e.target.value;
                 localStorage.setItem('date', currentDate);
-                updateHeaderDisplay();
+                renderDailyStudents();
             });
 
-            // Event Listener untuk Tambah Siswa Baru
+            newStudentNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addStudentBtn.click();
+                }
+            });
+
             addStudentBtn.addEventListener('click', () => {
                 const newName = newStudentNameInput.value.trim();
                 if (newName) {
-                    const newId = Date.now(); // ID unik berdasarkan timestamp
+                    const newId = Date.now();
                     students.push({ id: newId, name: newName });
-                    newStudentNameInput.value = ''; // Kosongkan input
-                    renderStudents(); // Render ulang daftar siswa
+                    newStudentNameInput.value = '';
+                    localStorage.setItem('students', JSON.stringify(students));
+                    renderDailyStudents();
                 } else {
                     alert('Nama siswa tidak boleh kosong!');
                 }
             });
 
-            // Event Listener untuk Tombol Log Out
             logoutBtn.addEventListener('click', logout);
 
-            // Fungsi Export ke Excel
+            viewRecapBtn.addEventListener('click', () => {
+                if (dailyView.classList.contains('hidden')) {
+                    toggleView('daily');
+                } else {
+                    toggleView('recap');
+                }
+            });
+            
+            monthSelect.addEventListener('change', renderMonthlyRecap);
+            yearSelect.addEventListener('change', renderMonthlyRecap);
+            generateSummaryBtn.addEventListener('click', generateAttendanceSummary);
+
+            // ===================================
+            // FUNGSI EXPORT
+            // ===================================
+
             exportExcelBtn.addEventListener('click', () => {
-                console.log('Tombol Export Excel diklik!'); // Log untuk debugging
-                
-                // Pastikan XLSX dan saveAs tersedia
                 if (typeof XLSX === 'undefined' || typeof saveAs === 'undefined') {
-                    console.error('Library XLSX atau FileSaver tidak dimuat dengan benar!');
                     alert('Fitur Export Excel tidak tersedia. Harap periksa koneksi internet Anda atau coba lagi.');
                     return;
                 }
-
-                // Data header informasi di atas tabel
+            
                 const headerInfo = [
                     ['Daftar Hadir Siswa'],
                     [`Kelas: ${className}`],
                     [`Wali Kelas: ${teacherName}`],
                     [`Tanggal: ${currentDate}`],
-                    [' '], // Baris kosong sebagai pemisah
+                    [' '],
                 ];
-
-                // Header tabel aktual
                 const tableHeaders = ['No.', 'Nama Siswa', 'Status Kehadiran'];
-
-                // Data siswa yang akan diekspor
+                const todaysAttendance = historicalAttendance[currentDate] || {};
+                
                 const studentExportData = students.map((student, index) => [
                     index + 1,
                     student.name,
-                    student.attendance || 'Belum Terisi',
+                    todaysAttendance[student.id] || 'Belum Terisi',
                 ]);
-
-                // Gabungkan semua data menjadi satu array of arrays
+            
                 const fullExportData = [...headerInfo, tableHeaders, ...studentExportData];
-
-                // Buat worksheet dari array of arrays
                 const ws = XLSX.utils.aoa_to_sheet(fullExportData);
-                console.log('Worksheet berhasil dibuat:', ws); // Log worksheet
-                
-                // Sesuaikan lebar kolom
-                const wscols = [
-                    {wch: 5}, // No.
-                    {wch: 30}, // Nama Siswa
-                    {wch: 20}  // Status Kehadiran
-                ];
+            
+                const wscols = [{wch: 5}, {wch: 30}, {wch: 20}];
                 ws['!cols'] = wscols;
-
+            
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Daftar Hadir');
-
+                XLSX.utils.book_append_sheet(wb, ws, 'Daftar Hadir Harian');
+            
                 try {
                     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                     const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-                    
-                    const fileName = `Daftar-Hadir-${className}-${currentDate}.xlsx`;
+                    const fileName = `Daftar-Hadir-Harian-${className}-${currentDate}.xlsx`;
                     saveAs(dataBlob, fileName);
-                    console.log('File Excel berhasil diunduh:', fileName); // Log sukses
                 } catch (error) {
-                    console.error('Terjadi kesalahan saat mengunduh file Excel:', error); // Log error
                     alert('Gagal mengunduh file Excel. Periksa konsol browser untuk detail.');
                 }
             });
+            
+            exportRecapBtn.addEventListener('click', () => {
+                if (typeof XLSX === 'undefined' || typeof saveAs === 'undefined') {
+                    alert('Fitur Export Excel tidak tersedia. Harap periksa koneksi internet Anda atau coba lagi.');
+                    return;
+                }
+            
+                const selectedMonth = parseInt(monthSelect.value);
+                const selectedYear = parseInt(yearSelect.value);
+                const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+                const monthName = months[selectedMonth];
+            
+                const recapHeaders = ['No.', 'Nama Siswa', 'Total Hadir'];
+                for (let i = 1; i <= daysInMonth; i++) {
+                    recapHeaders.push(String(i));
+                }
+            
+                const recapData = students.map((student, index) => {
+                    const row = [index + 1, student.name, 0];
+                    for (let i = 1; i <= daysInMonth; i++) {
+                        const day = i < 10 ? `0${i}` : `${i}`;
+                        const dateKey = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${day}`;
+                        const attendance = historicalAttendance[dateKey] ? historicalAttendance[dateKey][student.id] : '-';
+                        row.push(attendance ? attendance.substring(0, 1) : '-');
+                        if (attendance === 'Hadir') {
+                            row[2]++;
+                        }
+                    }
+                    return row;
+                });
+            
+                const headerInfo = [
+                    ['Rekap Absensi Bulanan'],
+                    [`Kelas: ${className}`],
+                    [`Wali Kelas: ${teacherName}`],
+                    [`Bulan: ${monthName} ${selectedYear}`],
+                    [' '],
+                ];
+            
+                const fullExportData = [...headerInfo, recapHeaders, ...recapData];
+                const ws = XLSX.utils.aoa_to_sheet(fullExportData);
+            
+                const wscols = [{wch: 5}, {wch: 30}, {wch: 15}];
+                for (let i = 0; i < daysInMonth; i++) {
+                    wscols.push({wch: 5});
+                }
+                ws['!cols'] = wscols;
+            
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, `Rekap ${monthName}`);
+            
+                try {
+                    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+                    const fileName = `Rekap-Bulanan-${className}-${monthName}-${selectedYear}.xlsx`;
+                    saveAs(dataBlob, fileName);
+                } catch (error) {
+                    alert('Gagal mengunduh file Excel. Periksa konsol browser untuk detail.');
+                }
+            });
+
+            // ===================================
+            // INISIALISASI
+            // ===================================
+            for (let i = 0; i < months.length; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = months[i];
+                if (i === currentMonth) {
+                    option.selected = true;
+                }
+                monthSelect.appendChild(option);
+            }
+            
+            for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === currentYear) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
         });
     </script>
-
 </body>
 </html>
