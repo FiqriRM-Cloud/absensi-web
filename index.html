@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Hadir Siswa Interaktif - DaisyUI</title>
+    <title>Daftar Hadir Siswa Interaktif </title>
     
     <!-- Favicon -->
     <link rel="icon" href="images/absen.ico" type="image/x-icon">
@@ -15,13 +15,6 @@
     <!-- External JS Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    
-    <style>
-        /* Simple style to ensure the modal is visible on first load */
-        #modal-overlay:not(.hidden) {
-            display: flex;
-        }
-    </style>
 </head>
 <body class="bg-base-200">
 
@@ -55,7 +48,7 @@
                     <h1 id="teacher-name-header" class="card-title text-2xl">Guru: Nama Guru</h1>
                     <p id="class-name-header">Kelas: Nama Kelas</p>
                 </div>
-                <button id="logout-button" class="btn btn-error">Keluar</button>
+                <button id="logout-button" class="btn btn-error">Logout</button>
             </div>
         </header>
 
@@ -149,7 +142,7 @@
         <!-- Footer -->
         <footer class="footer footer-center p-4 mt-6 text-base-content">
             <div>
-                <p>&copy; 2024 Aplikasi Absensi Siswa </p>
+                <p>&copy; 2025 Aplikasi Absensi Siswa </p>
             </div>
         </footer>
     </div>
@@ -174,7 +167,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- DOM Elements ---\n        
+        // --- DOM Elements ---
         const modalOverlay = document.getElementById('modal-overlay');
         const initialDataForm = document.getElementById('initial-data-form');
         const teacherNameInput = document.getElementById('teacher-name-input');
