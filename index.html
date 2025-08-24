@@ -1,809 +1,532 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Hadir Siswa Interaktif</title>
-    <!-- Favicon buku -->
+    <title>Daftar Hadir Siswa Interaktif - DaisyUI</title>
+    
+    <!-- Favicon -->
     <link rel="icon" href="images/absen.ico" type="image/x-icon">
-    <!-- CDN untuk xlsx dan file-saver untuk fitur Export Excel -->
+    
+    <!-- DaisyUI & Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- External JS Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
     <style>
-        /* Gaya Umum */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: linear-gradient(to bottom right, #fceabb, #f8b195);
-            padding: 20px;
-            margin: 0;
+        /* Simple style to ensure the modal is visible on first load */
+        #modal-overlay:not(.hidden) {
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1000px;
-            width: 100%;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-        .hidden { display: none; }
-        .flex { display: flex; }
-        .justify-between { justify-content: space-between; }
-        .items-center { align-items: center; }
-        .gap-15 { gap: 15px; }
-
-        /* Header */
-        .header {
-            background-image: linear-gradient(to right, #e0eafc, #cfdef3); /* Gradasi warna biru muda-abu-abu */
-            color: #333333; /* Warna tulisan hitam */
-            padding: 25px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-        }
-        .header h1 { font-size: 2.2rem; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
-        .header p { margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.95rem; }
-        .teacher-info { text-align: right; }
-        .teacher-info .name { font-size: 1.3rem; font-weight: 600; margin-bottom: 5px; }
-        .teacher-info .role { font-size: 0.9rem; opacity: 0.8; }
-        .header .date-input {
-            background-color: rgba(255, 255, 255, 0.5); /* Latar belakang input sedikit transparan */
-            color: #333333; /* Warna tulisan hitam */
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.2);
-            font-size: 0.9rem;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .header .date-input:hover { background-color: rgba(255, 255, 255, 0.7); }
-        .header .date-input::-webkit-calendar-picker-indicator { filter: none; }
-
-        /* Konten Utama */
-        .main-content {
-            padding: 30px;
-        }
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .controls h2 { font-size: 1.6rem; font-weight: 600; color: #333333; margin: 0; }
-        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-
-        /* Tombol */
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            color: #fff;
-        }
-        .btn-green { background-image: linear-gradient(to right, #4CAF50, #8BC34A); }
-        .btn-green:hover { background-image: linear-gradient(to right, #45A049, #79B845); transform: translateY(-1px); }
-        .btn-blue { background-image: linear-gradient(to right, #2196F3, #03A9F4); }
-        .btn-blue:hover { background-image: linear-gradient(to right, #1E88E5, #039BE5); transform: translateY(-1px); }
-        .btn-red { background-image: linear-gradient(to right, #F44336, #E57373); }
-        .btn-red:hover { background-image: linear-gradient(to right, #E53935, #E55753); transform: translateY(-1px); }
-        .btn-secondary { background-image: linear-gradient(to right, #9E9E9E, #BDBDBD); color: #fff; }
-        .btn-secondary:hover { background-image: linear-gradient(to right, #8D8D8D, #AFAFAF); transform: translateY(-1px); }
-
-        /* Tabel */
-        .table-container { 
-            overflow-x: auto; 
-            border: 1px solid #e0e0e0; 
-            border-radius: 8px; 
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.9rem; }
-        th, td { padding: 15px 20px; text-align: left; vertical-align: middle; border-bottom: 1px solid #e9ecef; }
-        th { background-color: #f8f9fa; text-transform: uppercase; color: #6c757d; font-weight: 600; white-space: nowrap; }
-        th:first-child { border-top-left-radius: 8px; }
-        th:last-child { border-top-right-radius: 8px; }
-        tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background-color: #f6f6f6; }
-        
-        .status-buttons { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-        .status-btn {
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid #ced4da;
-            color: #fff;
-            transition: all 0.2s ease;
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-        .status-btn.active-hadir { background-image: linear-gradient(to right, #28a745, #5cb85c); border-color: #28a745; }
-        .status-btn.active-sakit { background-image: linear-gradient(to right, #ffc107, #ff9800); color: #343a40; border-color: #ffc107; }
-        .status-btn.active-izin { background-image: linear-gradient(to right, #007bff, #17a2b8); border-color: #007bff; }
-        .status-btn.active-alpa { background-image: linear-gradient(to right, #dc3545, #f44336); border-color: #dc3545; }
-        .status-btn.active-tk { background-image: linear-gradient(to right, #343a40, #6c757d); border-color: #343a40; }
-        
-        /* Footer */
-        .footer { padding: 20px 30px; border-top: 1px solid #e9ecef; text-align: center; font-size: 0.85rem; color: #6c757d; background-color: #f8f9fa; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
-
-        /* Modal */
-        .modal-overlay {
-            display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background-image: linear-gradient(to bottom right, #fceabb, #f8b195);
-            padding: 30px; border-radius: 12px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-            width: 90%; max-width: 450px; text-align: center; animation: fadeIn 0.3s ease-out;
-        }
-        .modal-content h2 { font-size: 1.8rem; color: #333333; margin-bottom: 20px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #555555; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 1rem; box-sizing: border-box;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none; border-color: #4a90e2; box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
-        }
-        .modal-button {
-            background-color: #4a90e2; color: #ffffff; padding: 12px 25px; border-radius: 8px; border: none; font-weight: 600;
-            cursor: pointer; width: 100%; font-size: 1.1rem; transition: background-color 0.3s ease;
-            background-image: linear-gradient(to right, #4a90e2, #6a5acd);
-        }
-        .modal-button:hover { background-image: linear-gradient(to right, #3a7bd5, #5c4cb8); }
-
-        /* Bagian Tambah Siswa */
-        .add-student-section {
-            background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px;
-            margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-        }
-        .add-student-section input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; }
-        .add-student-section button {
-            padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;
-            background-color: #6c757d; color: #fff; transition: background-color 0.3s ease; font-size: 0.95rem;
-            background-image: linear-gradient(to right, #6c757d, #868e96);
-        }
-        .add-student-section button:hover { background-image: linear-gradient(to right, #5a6268, #757d87); }
-
-        /* Tombol Hapus Siswa */
-        .delete-btn {
-            background-image: linear-gradient(to right, #dc3545, #e74c3c); color: #fff; padding: 6px 10px; border-radius: 6px; border: none;
-            cursor: pointer; font-size: 0.8rem; margin-left: 10px; transition: all 0.3s ease;
-        }
-        .delete-btn:hover { background-image: linear-gradient(to right, #c82333, #d63d2f); transform: translateY(-1px); }
-        
-        /* Animasi */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Responsif */
-        @media (max-width: 768px) {
-            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .teacher-info { text-align: left; width: 100%; }
-            .controls { flex-direction: column; align-items: flex-start; }
-            .action-buttons { width: 100%; justify-content: flex-start; }
-            .btn, .status-btn, .modal-button { width: auto; flex-grow: 1; }
-            .status-buttons { justify-content: space-between; }
-            .add-student-section { flex-direction: column; align-items: stretch; }
-            .add-student-section input, .add-student-section button { width: 100%; }
-        }
-
-        .summary-container {
-            background-color: #f8f9fa;
-            border-left: 5px solid #007bff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        .summary-container pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 1rem;
-            color: #333;
-            margin: 0;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body>
+<body class="bg-base-200">
 
     <!-- Modal Input Data Awal -->
-    <div id="modal-overlay" class="modal-overlay">
-        <div class="modal-content">
-            <h2>Masukkan Data Kelas</h2>
-            <form id="info-form">
-                <div class="form-group">
-                    <label for="teacherName">Nama Guru</label>
-                    <input type="text" id="teacherName" placeholder="Contoh: Ibu Budiarti" required>
+    <div id="modal-overlay" class="modal modal-open cursor-pointer">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Selamat Datang!</h3>
+            <p class="py-4">Silakan masukkan nama guru dan kelas untuk memulai sesi absensi.</p>
+            <form id="initial-data-form">
+                <div class="form-control w-full mb-4">
+                    <label class="label"><span class="label-text">Nama Guru</span></label>
+                    <input type="text" id="teacher-name-input" placeholder="Contoh: Rahmat Hidayat" class="input input-bordered w-full" required />
                 </div>
-                <div class="form-group">
-                    <label for="className">Nama Kelas</label>
-                    <input type="text" id="className" placeholder="Contoh: Kelas 10A" required>
+                <div class="form-control w-full">
+                    <label class="label"><span class="label-text">Nama Kelas</span></label>
+                    <input type="text" id="class-name-input" placeholder="Contoh: XII IPA 1" class="input input-bordered w-full" required />
                 </div>
-                <button type="submit" class="modal-button">Mulai Daftar Hadir</button>
+                <div class="modal-action">
+                    <button type="submit" class="btn btn-primary">Simpan & Mulai</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Aplikasi Daftar Hadir Utama -->
-    <div id="main-app" class="container" style="display: none;">
-        <div class="header">
+    <!-- Main App Container -->
+    <div id="app-container" class="max-w-7xl mx-auto p-4 hidden">
+        <!-- Header -->
+        <header class="card bg-base-100 shadow-md mb-6">
+            <div class="card-body flex-row justify-between items-center">
+                <div>
+                    <h1 id="teacher-name-header" class="card-title text-2xl">Guru: Nama Guru</h1>
+                    <p id="class-name-header">Kelas: Nama Kelas</p>
+                </div>
+                <button id="logout-button" class="btn btn-error">Keluar</button>
+            </div>
+        </header>
+
+        <!-- View Toggler -->
+        <div role="tablist" class="tabs tabs-boxed mb-6">
+            <a role="tab" id="daily-view-btn" class="tab tab-active">Absensi Harian</a>
+            <a role="tab" id="monthly-view-btn" class="tab">Rekap Bulanan</a>
+        </div>
+
+        <!-- Daily View -->
+        <div id="daily-view" class="space-y-6">
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <div class="flex justify-between items-center flex-wrap gap-4">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Pilih Tanggal</span></label>
+                            <input type="date" id="attendance-date" class="input input-bordered">
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Tambah Siswa Baru</span></label>
+                            <div class="join">
+                                <input type="text" id="new-student-name" placeholder="Nama Siswa" class="input input-bordered join-item">
+                                <button id="add-student-btn" class="btn btn-primary join-item">Tambah</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <button id="mark-all-present-btn" class="btn btn-success">Hadirkan Semua</button>
+                <button id="export-daily-btn" class="btn btn-info">Export Harian (Excel)</button>
+            </div>
+            <div class="overflow-x-auto bg-base-100 rounded-lg shadow">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Siswa</th>
+                            <th class="text-center">Status (Klik untuk Ganti)</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-list">
+                        <!-- Student rows will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Monthly View -->
+        <div id="monthly-view" class="hidden space-y-6">
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <div class="flex justify-between items-center flex-wrap gap-4">
+                        <div class="flex items-end gap-4 flex-wrap">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Bulan</span></label>
+                                <select id="month-select" class="select select-bordered"></select>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Tahun</span></label>
+                                <select id="year-select" class="select select-bordered"></select>
+                            </div>
+                            <button id="show-recap-btn" class="btn btn-primary">Tampilkan Rekap</button>
+                        </div>
+                        <div class="flex items-end gap-4 flex-wrap">
+                            <button id="export-monthly-btn" class="btn btn-info">Export Rekap (Excel)</button>
+                            <button id="generate-summary-btn" class="btn btn-accent">Buat Ringkasan AI</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="summary-container" class="card bg-base-100 shadow hidden">
+                <div class="card-body">
+                    <h2 class="card-title">Ringkasan AI</h2>
+                    <p id="summary-text" class="text-base-content text-sm whitespace-pre-wrap">Klik tombol "Buat Ringkasan AI" untuk melihat analisis.</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto bg-base-100 rounded-lg shadow">
+                <table id="monthly-recap-table" class="table table-zebra table-pin-rows">
+                    <thead id="monthly-recap-header">
+                        <!-- Recap header will be injected here -->
+                    </thead>
+                    <tbody id="monthly-recap-body">
+                        <!-- Recap body will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer footer-center p-4 mt-6 text-base-content">
             <div>
-                <h1>Daftar Hadir Siswa</h1>
-                <p id="class-name-display"></p>
+                <p>&copy; 2024 Aplikasi Absensi Siswa </p>
             </div>
-            <div class="teacher-info">
-                <p class="name" id="teacher-name-display"></p>
-                <p class="role">Wali Kelas</p>
-                <button id="logout-btn" class="btn btn-red" style="margin-top: 10px;">Log Out</button>
-            </div>
-        </div>
-
-        <div class="main-content">
-            <div class="controls">
-                <h2>Daftar Siswa</h2>
-                <div class="action-buttons">
-                    <button id="view-recap-btn" class="btn btn-secondary">Lihat Rekap Bulanan</button>
-                </div>
-            </div>
-
-            <!-- Tampilan Daftar Hadir Harian (Daily Attendance View) -->
-            <div id="daily-view">
-                <div class="flex items-center justify-between gap-15" style="margin-bottom: 25px; flex-wrap: wrap;">
-                    <input type="date" id="attendance-date" class="date-input" style="color: #495057; background-color: #fff; border: 1px solid #ced4da; margin-top: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                    <div class="action-buttons">
-                        <button id="mark-all-present" class="btn btn-green">Hadir Semua</button>
-                        <button id="export-excel" class="btn btn-blue">Export Harian</button>
-                    </div>
-                </div>
-            
-                <div class="add-student-section">
-                    <input type="text" id="new-student-name" placeholder="Nama siswa baru">
-                    <button id="add-student-btn">Tambah Siswa</button>
-                </div>
-            
-                <div class="table-container">
-                    <table id="attendance-table">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Nama Siswa</th>
-                                <th style="text-align: center;">Status Kehadiran</th>
-                            </tr>
-                        </thead>
-                        <tbody id="student-list"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Tampilan Rekap Bulanan (Monthly Recap View) -->
-            <div id="monthly-recap-view" class="hidden">
-                <div class="flex items-center justify-between gap-15" style="margin-bottom: 25px; flex-wrap: wrap;">
-                    <div class="flex items-center gap-15">
-                        <select id="month-select" class="date-input" style="color: #495057; background-color: #fff; border: 1px solid #ced4da; margin-top: 0;">
-                        </select>
-                        <select id="year-select" class="date-input" style="color: #495057; background-color: #fff; border: 1px solid #ced4da; margin-top: 0;">
-                        </select>
-                    </div>
-                    <div class="action-buttons">
-                        <button id="export-recap-btn" class="btn btn-blue">Export Rekap</button>
-                        <button id="generate-summary-btn" class="btn btn-blue">✨ Ringkasan Absensi</button>
-                    </div>
-                </div>
-                <div class="summary-container hidden" id="summary-output">
-                    <div id="loading-spinner" class="loader hidden"></div>
-                    <pre id="summary-text"></pre>
-                </div>
-                <div class="table-container">
-                    <table id="recap-table">
-                        <thead>
-                            <tr id="recap-header-row">
-                                <th rowspan="2">No.</th>
-                                <th rowspan="2">Nama Siswa</th>
-                                <th rowspan="2">Total Hadir</th>
-                                <!-- Kolom tanggal akan di-generate oleh JS -->
-                            </tr>
-                        </thead>
-                        <tbody id="recap-student-list"></tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-        <div class="footer">
-            <p>Setiap kehadiranmu adalah langkah maju menuju masa depan cerah. Rajinlah belajar, gapai impianmu!</p>
-        </div>
+        </footer>
     </div>
 
+    <!-- Generic Modal -->
+    <dialog id="generic-modal" class="modal">
+        <div class="modal-box">
+            <h3 id="modal-title" class="font-bold text-lg"></h3>
+            <p id="modal-text" class="py-4"></p>
+            <div id="modal-prompt-container" class="form-control w-full hidden">
+                <label class="label">
+                    <span id="modal-prompt-label" class="label-text"></span>
+                </label>
+                <input type="text" id="modal-prompt-input" class="input input-bordered w-full" />
+            </div>
+            <div class="modal-action">
+                <button id="modal-confirm-btn" class="btn btn-primary">Ya</button>
+                <button id="modal-cancel-btn" class="btn btn-ghost">Batal</button>
+            </div>
+        </div>
+    </dialog>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialStudentData = [];
-            let students = JSON.parse(localStorage.getItem('students')) || initialStudentData;
-            let teacherName = localStorage.getItem('teacherName') || '';
-            let className = localStorage.getItem('className') || '';
-            let currentDate = localStorage.getItem('date') || new Date().toISOString().slice(0, 10);
-            let historicalAttendance = JSON.parse(localStorage.getItem('historicalAttendance')) || {};
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Elements ---\n        
+        const modalOverlay = document.getElementById('modal-overlay');
+        const initialDataForm = document.getElementById('initial-data-form');
+        const teacherNameInput = document.getElementById('teacher-name-input');
+        const classNameInput = document.getElementById('class-name-input');
+        const appContainer = document.getElementById('app-container');
+        const classNameHeader = document.getElementById('class-name-header');
+        const teacherNameHeader = document.getElementById('teacher-name-header');
+        const logoutButton = document.getElementById('logout-button');
+        const dailyView = document.getElementById('daily-view');
+        const monthlyView = document.getElementById('monthly-view');
+        const dailyViewBtn = document.getElementById('daily-view-btn');
+        const monthlyViewBtn = document.getElementById('monthly-view-btn');
+        const attendanceDate = document.getElementById('attendance-date');
+        const studentList = document.getElementById('student-list');
+        const newStudentName = document.getElementById('new-student-name');
+        const addStudentBtn = document.getElementById('add-student-btn');
+        const markAllPresentBtn = document.getElementById('mark-all-present-btn');
+        const exportDailyBtn = document.getElementById('export-daily-btn');
+        const monthSelect = document.getElementById('month-select');
+        const yearSelect = document.getElementById('year-select');
+        const showRecapBtn = document.getElementById('show-recap-btn');
+        const monthlyRecapTable = document.getElementById('monthly-recap-table');
+        const monthlyRecapHeader = document.getElementById('monthly-recap-header');
+        const monthlyRecapBody = document.getElementById('monthly-recap-body');
+        const exportMonthlyBtn = document.getElementById('export-monthly-btn');
+        const generateSummaryBtn = document.getElementById('generate-summary-btn');
+        const summaryContainer = document.getElementById('summary-container');
+        const summaryText = document.getElementById('summary-text');
 
-            const modalOverlay = document.getElementById('modal-overlay');
-            const infoForm = document.getElementById('info-form');
-            const teacherNameInput = document.getElementById('teacherName');
-            const classNameInput = document.getElementById('className');
-            const mainApp = document.getElementById('main-app');
-            const teacherNameDisplay = document.getElementById('teacher-name-display');
-            const classNameDisplay = document.getElementById('class-name-display');
-            const attendanceDateInput = document.getElementById('attendance-date');
-            const studentList = document.getElementById('student-list');
-            const markAllPresentBtn = document.getElementById('mark-all-present');
-            const exportExcelBtn = document.getElementById('export-excel');
-            const logoutBtn = document.getElementById('logout-btn');
-            const newStudentNameInput = document.getElementById('new-student-name');
-            const addStudentBtn = document.getElementById('add-student-btn');
-            const viewRecapBtn = document.getElementById('view-recap-btn');
-            const dailyView = document.getElementById('daily-view');
-            const monthlyRecapView = document.getElementById('monthly-recap-view');
-            const monthSelect = document.getElementById('month-select');
-            const yearSelect = document.getElementById('year-select');
-            const recapHeaderRow = document.getElementById('recap-header-row');
-            const recapStudentList = document.getElementById('recap-student-list');
-            const exportRecapBtn = document.getElementById('export-recap-btn');
+        // --- Modal Elements ---
+        const genericModal = document.getElementById('generic-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalText = document.getElementById('modal-text');
+        const modalPromptContainer = document.getElementById('modal-prompt-container');
+        const modalPromptLabel = document.getElementById('modal-prompt-label');
+        const modalPromptInput = document.getElementById('modal-prompt-input');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+        // --- App State ---
+        let students = [];
+        let attendanceData = {};
+        const STATUSES = {
+            'TK': { name: 'Tanpa Keterangan', color: 'btn-ghost' },
+            'H': { name: 'Hadir', color: 'btn-success' },
+            'S': { name: 'Sakit', color: 'btn-warning' },
+            'I': { name: 'Izin', color: 'btn-info' },
+            'A': { name: 'Alfa', color: 'btn-error' }
+        };
+        const ORDERED_STATUS_KEYS = ['TK', 'H', 'S', 'I', 'A'];
+
+        // --- Modal Logic ---
+        const showModal = (title, text, type = 'alert', onConfirm = () => {}, promptLabel = '') => {
+            modalTitle.textContent = title;
+            modalText.textContent = text;
             
-            const generateSummaryBtn = document.getElementById('generate-summary-btn');
-            const summaryOutputDiv = document.getElementById('summary-output');
-            const loadingSpinner = document.getElementById('loading-spinner');
-            const summaryTextPre = document.getElementById('summary-text');
+            modalPromptContainer.classList.add('hidden');
+            modalPromptInput.value = '';
+
+            if (type === 'alert') {
+                modalCancelBtn.classList.add('hidden');
+                modalConfirmBtn.textContent = 'OK';
+            } else if (type === 'confirm') {
+                modalCancelBtn.classList.remove('hidden');
+                modalConfirmBtn.textContent = 'Ya';
+                modalCancelBtn.textContent = 'Batal';
+            } else if (type === 'prompt') {
+                modalPromptContainer.classList.remove('hidden');
+                modalPromptLabel.textContent = promptLabel;
+                modalCancelBtn.classList.remove('hidden');
+                modalConfirmBtn.textContent = 'Kirim';
+                modalCancelBtn.textContent = 'Batal';
+            }
+
+            genericModal.showModal();
+
+            // Clone and replace the button to remove old event listeners
+            const newConfirmBtn = modalConfirmBtn.cloneNode(true);
+            modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
+            
+            const newCancelBtn = modalCancelBtn.cloneNode(true);
+            modalCancelBtn.parentNode.replaceChild(newCancelBtn, modalCancelBtn);
+            
+            // Assign new references
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+
+            const closeHandler = () => {
+                genericModal.close();
+            };
+
+            const confirmHandler = () => {
+                if (type === 'prompt') {
+                    onConfirm(modalPromptInput.value);
+                } else {
+                    onConfirm();
+                }
+                closeHandler();
+            };
+
+            confirmBtn.addEventListener('click', confirmHandler);
+            cancelBtn.addEventListener('click', closeHandler);
+        };
 
 
-            const months = [
-                "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
-                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-            ];
-            const currentYear = new Date().getFullYear();
+        // --- Data Persistence ---
+        const loadDataFromStorage = () => {
+            students = JSON.parse(localStorage.getItem('students') || '[]');
+            attendanceData = JSON.parse(localStorage.getItem('attendanceData') || '{}');
+        };
+        const saveDataToStorage = () => {
+            localStorage.setItem('students', JSON.stringify(students));
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+        };
+
+        // --- Rendering ---
+        const renderStudents = () => {
+            const date = attendanceDate.value;
+            if (!attendanceData[date]) attendanceData[date] = {};
+
+            studentList.innerHTML = '';
+            if (students.length === 0) {
+                studentList.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada siswa.</td></tr>';
+                return;
+            }
+
+            students.forEach((student, index) => {
+                const currentStatusKey = attendanceData[date][student] || 'TK';
+                const statusInfo = STATUSES[currentStatusKey];
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <th>${index + 1}</th>
+                    <td>${student}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm w-32 ${statusInfo.color}" data-toggle-status-for-student="${student}">
+                            ${statusInfo.name}
+                        </button>
+                    </td>
+                    <td><button class="btn btn-xs btn-ghost" data-delete-student="${student}">Hapus</button></td>
+                `;
+                studentList.appendChild(tr);
+            });
+        };
+
+        const renderMonthlyRecap = () => {
+            const month = monthSelect.value;
+            const year = yearSelect.value;
+            if (!month || !year) return;
+            
+            const daysInMonth = new Date(year, month, 0).getDate();
+            monthlyRecapHeader.innerHTML = '<tr><th>Nama Siswa</th>' + Array.from({length: daysInMonth}, (_, i) => `<th>${i+1}</th>`).join('') + '</tr>';
+
+            monthlyRecapBody.innerHTML = '';
+            students.forEach(student => {
+                let row = `<td>${student}</td>`;
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const date = `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                    const status = (attendanceData[date] && attendanceData[date][student]) || '-';
+                    row += `<td>${status}</td>`;
+                }
+                monthlyRecapBody.innerHTML += `<tr>${row}</tr>`;
+            });
+        };
+
+        // --- UI Updates ---
+        const updateHeader = () => {
+            teacherNameHeader.textContent = `Guru: ${localStorage.getItem('teacherName') || 'Nama Guru'}`;
+            classNameHeader.textContent = `Kelas: ${localStorage.getItem('className') || 'Nama Kelas'}`;
+        };
+
+        const populateDateSelects = () => {
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             const currentMonth = new Date().getMonth();
+            monthSelect.innerHTML = months.map((m, i) => `<option value="${i + 1}" ${i === currentMonth ? 'selected' : ''}>${m}</option>`).join('');
 
-            // ===================================
-            // FUNGSI UTAMA
-            // ===================================
+            const currentYear = new Date().getFullYear();
+            yearSelect.innerHTML = Array.from({length: 6}, (_, i) => `<option value="${currentYear - i}">${currentYear - i}</option>`).join('');
+        };
 
-            function renderDailyStudents() {
-                studentList.innerHTML = '';
-                const todaysAttendance = historicalAttendance[currentDate] || {};
+        // --- Event Handlers ---
+        const handleInitialFormSubmit = (e) => {
+            e.preventDefault();
+            localStorage.setItem('teacherName', teacherNameInput.value.trim());
+            localStorage.setItem('className', classNameInput.value.trim());
+            modalOverlay.classList.add("hidden");
+            appContainer.classList.remove("hidden");
+            initApp();
+        };
+
+        const handleStudentListInteraction = (e) => {
+            const target = e.target.closest('button');
+            if (!target) return;
+
+            const studentToToggle = target.dataset.toggleStatusForStudent;
+            const studentToDelete = target.dataset.deleteStudent;
+
+            if (studentToToggle) {
+                const date = attendanceDate.value;
+                const currentStatus = attendanceData[date]?.[studentToToggle] || 'TK';
+                const currentIndex = ORDERED_STATUS_KEYS.indexOf(currentStatus);
+                const nextIndex = (currentIndex + 1) % ORDERED_STATUS_KEYS.length;
+                const nextStatus = ORDERED_STATUS_KEYS[nextIndex];
                 
-                students.forEach((student, index) => {
-                    const studentStatus = todaysAttendance[student.id] || 'Belum Terisi';
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${student.name} <button class="delete-btn" data-id="${student.id}">Hapus</button></td>
-                        <td style="text-align: center;">
-                            <div class="status-buttons">
-                                <button class="status-btn ${studentStatus === 'Hadir' ? 'active-hadir' : ''}" data-status="Hadir" data-id="${student.id}">Hadir</button>
-                                <button class="status-btn ${studentStatus === 'Sakit' ? 'active-sakit' : ''}" data-status="Sakit" data-id="${student.id}">Sakit</button>
-                                <button class="status-btn ${studentStatus === 'Izin' ? 'active-izin' : ''}" data-status="Izin" data-id="${student.id}">Izin</button>
-                                <button class="status-btn ${studentStatus === 'Alpa' ? 'active-alpa' : ''}" data-status="Alpa" data-id="${student.id}">Alpa</button>
-                                <button class="status-btn ${studentStatus === 'Tanpa Keterangan' ? 'active-tk' : ''}" data-status="Tanpa Keterangan" data-id="${student.id}">TK</button>
-                            </div>
-                        </td>
-                    `;
-                    studentList.appendChild(tr);
+                if (!attendanceData[date]) attendanceData[date] = {};
+                attendanceData[date][studentToToggle] = nextStatus;
+                
+                saveDataToStorage();
+                renderStudents();
+            } else if (studentToDelete) {
+                showModal('Konfirmasi Hapus', `Yakin ingin menghapus siswa "${studentToDelete}"?`, 'confirm', () => {
+                    students = students.filter(s => s !== studentToDelete);
+                    Object.keys(attendanceData).forEach(date => delete attendanceData[date][studentToDelete]);
+                    saveDataToStorage();
+                    renderStudents();
                 });
             }
+        };
 
-            function renderMonthlyRecap() {
-                recapStudentList.innerHTML = '';
-                const selectedMonth = parseInt(monthSelect.value);
-                const selectedYear = parseInt(yearSelect.value);
-                const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-                
-                let headerHTML = '<th>No.</th><th>Nama Siswa</th><th>Total Hadir</th>';
-                for (let i = 1; i <= daysInMonth; i++) {
-                    headerHTML += `<th class="text-center">${i}</th>`;
-                }
-                recapHeaderRow.innerHTML = headerHTML;
-                
-                students.forEach((student, index) => {
-                    const tr = document.createElement('tr');
-                    let totalHadir = 0;
-                    let rowHTML = `<td>${index + 1}</td><td>${student.name}</td>`;
-                    
-                    let statusHTML = '';
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        const day = i < 10 ? `0${i}` : `${i}`;
-                        const dateKey = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${day}`;
-                        const attendance = historicalAttendance[dateKey] ? historicalAttendance[dateKey][student.id] : '-';
-                        
-                        if (attendance === 'Hadir') {
-                            totalHadir++;
-                        }
-                        statusHTML += `<td class="text-center">${attendance ? attendance.substring(0, 1) : '-'}</td>`;
-                    }
-                    
-                    rowHTML += `<td>${totalHadir}</td>${statusHTML}`;
-                    tr.innerHTML = rowHTML;
-                    recapStudentList.appendChild(tr);
-                });
+        const handleAddStudent = () => {
+            const name = newStudentName.value.trim();
+            if (name && !students.includes(name)) {
+                students.push(name);
+                newStudentName.value = '';
+                saveDataToStorage();
+                renderStudents();
+            } else if (students.includes(name)) {
+                showModal('Peringatan', 'Siswa dengan nama tersebut sudah ada.', 'alert');
             }
+        };
+        
+        const handleMarkAllPresent = () => {
+            const date = attendanceDate.value;
+            if (!attendanceData[date]) attendanceData[date] = {};
+            students.forEach(student => { attendanceData[date][student] = 'H'; });
+            saveDataToStorage();
+            renderStudents();
+        };
 
-            function updateHeaderDisplay() {
-                teacherNameDisplay.textContent = teacherName;
-                classNameDisplay.textContent = className;
-                localStorage.setItem('teacherName', teacherName);
-                localStorage.setItem('className', className);
-                localStorage.setItem('date', currentDate);
-                localStorage.setItem('students', JSON.stringify(students));
-                localStorage.setItem('historicalAttendance', JSON.stringify(historicalAttendance));
-            }
+        const logout = () => {
+            showModal('Konfirmasi Keluar', 'Apakah Anda yakin ingin keluar? Sesi ini akan berakhir.', 'confirm', () => {
+                localStorage.removeItem('teacherName');
+                localStorage.removeItem('className');
+                location.reload();
+            });
+        };
 
-            function logout() {
-                if (confirm('Apakah Anda yakin ingin keluar dan mengganti data kelas?')) {
-                    localStorage.removeItem('teacherName');
-                    localStorage.removeItem('className');
-                    localStorage.removeItem('date');
-                    teacherName = '';
-                    className = '';
-                    currentDate = new Date().toISOString().slice(0, 10);
-                    students = JSON.parse(localStorage.getItem('students')) || initialStudentData;
-                    modalOverlay.style.display = 'flex';
-                    mainApp.style.display = 'none';
-                    teacherNameInput.value = '';
-                    classNameInput.value = '';
-                    teacherNameInput.focus();
-                }
+        const toggleView = (viewToShow) => {
+            if (viewToShow === 'daily') {
+                dailyView.classList.remove('hidden');
+                monthlyView.classList.add('hidden');
+                dailyViewBtn.classList.add('tab-active');
+                monthlyViewBtn.classList.remove('tab-active');
+            } else {
+                dailyView.classList.add('hidden');
+                monthlyView.classList.remove('hidden');
+                dailyViewBtn.classList.remove('tab-active');
+                monthlyViewBtn.classList.add('tab-active');
+                renderMonthlyRecap();
             }
-            
-            function toggleView(view) {
-                if (view === 'daily') {
-                    dailyView.classList.remove('hidden');
-                    monthlyRecapView.classList.add('hidden');
-                    viewRecapBtn.textContent = 'Lihat Rekap Bulanan';
-                    renderDailyStudents();
-                } else if (view === 'recap') {
-                    dailyView.classList.add('hidden');
-                    monthlyRecapView.classList.remove('hidden');
-                    viewRecapBtn.textContent = 'Kembali ke Harian';
-                    renderMonthlyRecap();
+        };
+
+        // --- AI Summary ---
+        const generateAttendanceSummary = async () => {
+            showModal('Input API Key', 'Masukkan Google API Key Anda untuk membuat ringkasan.', 'prompt', async (apiKey) => {
+                if (!apiKey) {
+                    showModal('Informasi', 'Pembuatan ringkasan dibatalkan karena API Key tidak dimasukkan.', 'alert');
+                    return;
                 }
-            }
-            
-            // ===================================
-            // FUNGSI GEMINI API
-            // ===================================
-            async function generateAttendanceSummary() {
-                const selectedMonth = parseInt(monthSelect.value);
-                const selectedYear = parseInt(yearSelect.value);
-                const monthName = months[selectedMonth];
-            
-                // Tampilkan loading spinner
-                summaryOutputDiv.classList.remove('hidden');
-                loadingSpinner.classList.remove('hidden');
-                summaryTextPre.textContent = '';
+
+                summaryContainer.classList.remove('hidden');
+                summaryText.textContent = 'Membuat ringkasan, mohon tunggu...';
                 
-                const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-                const attendanceData = {};
-            
-                // Kumpulkan data absensi untuk prompt
-                students.forEach(student => {
-                    attendanceData[student.name] = {
-                        Hadir: 0,
-                        Sakit: 0,
-                        Izin: 0,
-                        Alpa: 0,
-                        'Tanpa Keterangan': 0
-                    };
-                });
-            
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const day = i < 10 ? `0${i}` : `${i}`;
-                    const dateKey = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${day}`;
-                    const dailyAttendance = historicalAttendance[dateKey] || {};
-            
-                    students.forEach(student => {
-                        const status = dailyAttendance[student.id] || 'Belum Terisi';
-                        if (attendanceData[student.name][status] !== undefined) {
-                            attendanceData[student.name][status]++;
-                        }
-                    });
-                }
-            
-                // Buat prompt untuk Gemini
-                let prompt = `Anda adalah asisten guru. Berikan ringkasan absensi yang profesional dan objektif untuk kelas ${className} pada bulan ${monthName} ${selectedYear}. Fokus pada statistik utama dan tren. Data kehadiran per siswa sebagai berikut:\n`;
-                
-                for (const name in attendanceData) {
-                    prompt += `${name}: Hadir (${attendanceData[name].Hadir}), Sakit (${attendanceData[name].Sakit}), Izin (${attendanceData[name].Izin}), Alpa (${attendanceData[name].Alpa}), Tanpa Keterangan (${attendanceData[name]['Tanpa Keterangan']}).\n`;
-                }
+                const month = monthSelect.options[monthSelect.selectedIndex].text;
+                const year = yearSelect.value;
+                const promptData = `Buat ringkasan dan analisis data absensi kelas "${localStorage.getItem('className')}" (${localStorage.getItem('teacherName')}) bulan ${month} ${year}. Data JSON: ${JSON.stringify(attendanceData)}. Fokus pada: tingkat kehadiran, siswa paling sering absen (S, I, A), dan tren absensi. Beri kesimpulan dan saran.`;
 
                 try {
-                    let chatHistory = [];
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = { contents: chatHistory };
-                    const apiKey = ""
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                    
-                    const response = await fetch(apiUrl, {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({ contents: [{ parts: [{ text: promptData }] }] })
                     });
-            
-                    if (!response.ok) {
-                        throw new Error(`API error: ${response.status} ${response.statusText}`);
-                    }
-            
-                    const result = await response.json();
-                    
-                    let responseText = "Tidak dapat menghasilkan ringkasan.";
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        responseText = result.candidates[0].content.parts[0].text;
-                    }
-            
-                    summaryTextPre.textContent = responseText;
+                    if (!response.ok) throw new Error((await response.json()).error.message);
+                    const data = await response.json();
+                    summaryText.textContent = data.candidates[0].content.parts[0].text;
                 } catch (error) {
-                    console.error('Gemini API Error:', error);
-                    summaryTextPre.textContent = 'Maaf, terjadi kesalahan saat menghubungi API. Silakan coba lagi nanti.';
-                } finally {
-                    loadingSpinner.classList.add('hidden');
+                    summaryText.textContent = `Gagal membuat ringkasan. Error: ${error.message}`;
                 }
-            }
+            }, 'Google API Key');
+        };
 
-
-            // ===================================
-            // EVENT LISTENERS
-            // ===================================
-
-            if (teacherName && className) {
-                modalOverlay.style.display = 'none';
-                mainApp.style.display = 'block';
-                updateHeaderDisplay();
-                renderDailyStudents();
-            } else {
-                modalOverlay.style.display = 'flex';
-                teacherNameInput.value = teacherName;
-                classNameInput.value = className;
-            }
-
-            infoForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                teacherName = teacherNameInput.value.trim();
-                className = classNameInput.value.trim();
-                if (teacherName && className) {
-                    modalOverlay.style.display = 'none';
-                    mainApp.style.display = 'block';
-                    updateHeaderDisplay();
-                    renderDailyStudents();
-                } else {
-                    alert('Nama Guru dan Nama Kelas tidak boleh kosong!');
-                }
-            });
-
-            studentList.addEventListener('click', (e) => {
-                if (e.target.classList.contains('status-btn')) {
-                    const studentId = parseInt(e.target.dataset.id);
-                    const newStatus = e.target.dataset.status;
-                    
-                    if (!historicalAttendance[currentDate]) {
-                        historicalAttendance[currentDate] = {};
-                    }
-                    historicalAttendance[currentDate][studentId] = newStatus;
-                    localStorage.setItem('historicalAttendance', JSON.stringify(historicalAttendance));
-                    
-                    renderDailyStudents();
-                } else if (e.target.classList.contains('delete-btn')) {
-                    const studentIdToDelete = parseInt(e.target.dataset.id);
-                    if (confirm('Apakah Anda yakin ingin menghapus siswa ini?')) {
-                        students = students.filter(student => student.id !== studentIdToDelete);
-                        localStorage.setItem('students', JSON.stringify(students));
-                        for (const date in historicalAttendance) {
-                            if (historicalAttendance[date][studentIdToDelete]) {
-                                delete historicalAttendance[date][studentIdToDelete];
-                            }
-                        }
-                        localStorage.setItem('historicalAttendance', JSON.stringify(historicalAttendance));
-                        renderDailyStudents();
-                    }
-                }
-            });
-
-            markAllPresentBtn.addEventListener('click', () => {
-                if (!historicalAttendance[currentDate]) {
-                    historicalAttendance[currentDate] = {};
-                }
-                students.forEach(student => {
-                    historicalAttendance[currentDate][student.id] = 'Hadir';
-                });
-                localStorage.setItem('historicalAttendance', JSON.stringify(historicalAttendance));
-                renderDailyStudents();
-            });
-
-            attendanceDateInput.addEventListener('change', (e) => {
-                currentDate = e.target.value;
-                localStorage.setItem('date', currentDate);
-                renderDailyStudents();
-            });
-
-            newStudentNameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    addStudentBtn.click();
-                }
-            });
-
-            addStudentBtn.addEventListener('click', () => {
-                const newName = newStudentNameInput.value.trim();
-                if (newName) {
-                    const newId = Date.now();
-                    students.push({ id: newId, name: newName });
-                    newStudentNameInput.value = '';
-                    localStorage.setItem('students', JSON.stringify(students));
-                    renderDailyStudents();
-                } else {
-                    alert('Nama siswa tidak boleh kosong!');
-                }
-            });
-
-            logoutBtn.addEventListener('click', logout);
-
-            viewRecapBtn.addEventListener('click', () => {
-                if (dailyView.classList.contains('hidden')) {
-                    toggleView('daily');
-                } else {
-                    toggleView('recap');
-                }
-            });
-            
-            monthSelect.addEventListener('change', renderMonthlyRecap);
-            yearSelect.addEventListener('change', renderMonthlyRecap);
-            generateSummaryBtn.addEventListener('click', generateAttendanceSummary);
-
-            // ===================================
-            // FUNGSI EXPORT
-            // ===================================
-
-            exportExcelBtn.addEventListener('click', () => {
-                if (typeof XLSX === 'undefined' || typeof saveAs === 'undefined') {
-                    alert('Fitur Export Excel tidak tersedia. Harap periksa koneksi internet Anda atau coba lagi.');
-                    return;
-                }
-            
-                const headerInfo = [
-                    ['Daftar Hadir Siswa'],
-                    [`Kelas: ${className}`],
-                    [`Wali Kelas: ${teacherName}`],
-                    [`Tanggal: ${currentDate}`],
-                    [' '],
-                ];
-                const tableHeaders = ['No.', 'Nama Siswa', 'Status Kehadiran'];
-                const todaysAttendance = historicalAttendance[currentDate] || {};
-                
-                const studentExportData = students.map((student, index) => [
+        // --- Excel Export ---
+        const exportDaily = () => {
+            const date = attendanceDate.value;
+            const data = [["No", "Nama Siswa", "Status"]].concat(
+                students.map((student, index) => [
                     index + 1,
-                    student.name,
-                    todaysAttendance[student.id] || 'Belum Terisi',
-                ]);
-            
-                const fullExportData = [...headerInfo, tableHeaders, ...studentExportData];
-                const ws = XLSX.utils.aoa_to_sheet(fullExportData);
-            
-                const wscols = [{wch: 5}, {wch: 30}, {wch: 20}];
-                ws['!cols'] = wscols;
-            
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Daftar Hadir Harian');
-            
-                try {
-                    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                    const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-                    const fileName = `Daftar-Hadir-Harian-${className}-${currentDate}.xlsx`;
-                    saveAs(dataBlob, fileName);
-                } catch (error) {
-                    alert('Gagal mengunduh file Excel. Periksa konsol browser untuk detail.');
-                }
-            });
-            
-            exportRecapBtn.addEventListener('click', () => {
-                if (typeof XLSX === 'undefined' || typeof saveAs === 'undefined') {
-                    alert('Fitur Export Excel tidak tersedia. Harap periksa koneksi internet Anda atau coba lagi.');
-                    return;
-                }
-            
-                const selectedMonth = parseInt(monthSelect.value);
-                const selectedYear = parseInt(yearSelect.value);
-                const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-                const monthName = months[selectedMonth];
-            
-                const recapHeaders = ['No.', 'Nama Siswa', 'Total Hadir'];
-                for (let i = 1; i <= daysInMonth; i++) {
-                    recapHeaders.push(String(i));
-                }
-            
-                const recapData = students.map((student, index) => {
-                    const row = [index + 1, student.name, 0];
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        const day = i < 10 ? `0${i}` : `${i}`;
-                        const dateKey = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${day}`;
-                        const attendance = historicalAttendance[dateKey] ? historicalAttendance[dateKey][student.id] : '-';
-                        row.push(attendance ? attendance.substring(0, 1) : '-');
-                        if (attendance === 'Hadir') {
-                            row[2]++;
-                        }
-                    }
-                    return row;
-                });
-            
-                const headerInfo = [
-                    ['Rekap Absensi Bulanan'],
-                    [`Kelas: ${className}`],
-                    [`Wali Kelas: ${teacherName}`],
-                    [`Bulan: ${monthName} ${selectedYear}`],
-                    [' '],
-                ];
-            
-                const fullExportData = [...headerInfo, recapHeaders, ...recapData];
-                const ws = XLSX.utils.aoa_to_sheet(fullExportData);
-            
-                const wscols = [{wch: 5}, {wch: 30}, {wch: 15}];
-                for (let i = 0; i < daysInMonth; i++) {
-                    wscols.push({wch: 5});
-                }
-                ws['!cols'] = wscols;
-            
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, `Rekap ${monthName}`);
-            
-                try {
-                    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                    const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-                    const fileName = `Rekap-Bulanan-${className}-${monthName}-${selectedYear}.xlsx`;
-                    saveAs(dataBlob, fileName);
-                } catch (error) {
-                    alert('Gagal mengunduh file Excel. Periksa konsol browser untuk detail.');
-                }
-            });
+                    student,
+                    STATUSES[(attendanceData[date] && attendanceData[date][student]) || 'TK'].name
+                ])
+            );
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Absensi Harian");
+            XLSX.writeFile(wb, `absensi_harian_${date}.xlsx`);
+        };
 
-            // ===================================
-            // INISIALISASI
-            // ===================================
-            for (let i = 0; i < months.length; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = months[i];
-                if (i === currentMonth) {
-                    option.selected = true;
-                }
-                monthSelect.appendChild(option);
+        const exportMonthly = () => {
+            const table = document.getElementById('monthly-recap-table');
+            const wb = XLSX.utils.table_to_book(table, {sheet: "Rekap Bulanan"});
+            XLSX.writeFile(wb, `rekap_absensi_${monthSelect.options[monthSelect.selectedIndex].text}_${yearSelect.value}.xlsx`);
+        };
+
+        // --- Initialization ---
+        const initApp = () => {
+            attendanceDate.valueAsDate = new Date();
+            populateDateSelects();
+            loadDataFromStorage();
+            updateHeader();
+            renderStudents();
+        };
+
+        const checkSession = () => {
+            if (localStorage.getItem('teacherName') && localStorage.getItem('className')) {
+                modalOverlay.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                initApp();
+            } else {
+                modalOverlay.classList.remove('hidden');
+                appContainer.classList.add('hidden');
             }
-            
-            for (let i = currentYear - 5; i <= currentYear + 5; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i;
-                if (i === currentYear) {
-                    option.selected = true;
-                }
-                yearSelect.appendChild(option);
-            }
-        });
+        };
+
+        // --- Event Listeners ---
+        initialDataForm.addEventListener('submit', handleInitialFormSubmit);
+        studentList.addEventListener('click', handleStudentListInteraction);
+        addStudentBtn.addEventListener('click', handleAddStudent);
+        newStudentName.addEventListener('keypress', (e) => e.key === 'Enter' && handleAddStudent());
+        markAllPresentBtn.addEventListener('click', handleMarkAllPresent);
+        attendanceDate.addEventListener('change', renderStudents);
+        logoutButton.addEventListener('click', logout);
+        dailyViewBtn.addEventListener('click', () => toggleView('daily'));
+        monthlyViewBtn.addEventListener('click', () => toggleView('monthly'));
+        showRecapBtn.addEventListener('click', renderMonthlyRecap);
+        exportDailyBtn.addEventListener('click', exportDaily);
+        exportMonthlyBtn.addEventListener('click', exportMonthly);
+        generateSummaryBtn.addEventListener('click', generateAttendanceSummary);
+
+        // Initial Load
+        checkSession();
+    });
     </script>
 </body>
 </html>
