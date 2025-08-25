@@ -1,524 +1,522 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Hadir Siswa Interaktif</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="images/absen.ico" type="image/x-icon">
-    
-    <!-- DaisyUI & Tailwind CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.css" rel="stylesheet" type="text/css" />
+    <title>Aplikasi Absensi</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.1/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- External JS Libraries -->
+    <link rel="icon" href="images/absen.ico" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
 </head>
-<body class="bg-base-200 min-h-screen">
 
-    <!-- Modal Input Data Awal -->
-    <div id="modal-overlay" class="modal modal-open cursor-pointer">
-        <div class="modal-box">
-            <h3 class="font-bold text-lg">Selamat Datang!</h3>
-            <p class="py-4">Silakan masukkan nama guru dan kelas untuk memulai sesi absensi.</p>
-            <form id="initial-data-form">
-                <div class="form-control w-full mb-4">
-                    <label class="label"><span class="label-text">Nama Guru</span></label>
-                    <input type="text" id="teacher-name-input" placeholder="Contoh: Rahmat Hidayat" class="input input-bordered w-full" required />
-                </div>
-                <div class="form-control w-full">
-                    <label class="label"><span class="label-text">Nama Kelas</span></label>
-                    <input type="text" id="class-name-input" placeholder="Contoh: XII IPA 1" class="input input-bordered w-full" required />
-                </div>
-                <div class="modal-action">
-                    <button type="submit" class="btn btn-primary">Simpan & Mulai</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main App Container -->
-    <div id="app-container" class="max-w-7xl mx-auto p-4 hidden">
-        <!-- Header -->
-        <header class="card bg-base-100 shadow-md mb-6">
-            <div class="card-body flex-row justify-between items-center">
+<body class="min-h-screen bg-base-200">
+    <div id="app" class="hidden p-4">
+        <header class="navbar bg-base-100 rounded-box shadow-lg mb-4">
+            <div class="flex-1">
                 <div>
-                    <h1 id="teacher-name-header" class="card-title text-2xl">Guru: Nama Guru</h1>
-                    <p id="class-name-header">Kelas: Nama Kelas</p>
+                    <h1 id="teacher-info" class="text-xl font-bold"></h1>
+                    <p id="class-info" class="text-sm text-gray-500"></p>
                 </div>
-                <button id="logout-button" class="btn btn-error">Keluar</button>
+            </div>
+            <div class="flex-none">
+                <div class="btn-group">
+                    <button id="daily-view-btn" class="btn btn-primary">Harian</button>
+                    <button id="monthly-view-btn" class="btn">Bulanan</button>
+                </div>
+                <button id="logout-btn" class="btn btn-ghost ml-2">Logout</button>
             </div>
         </header>
 
-        <!-- View Toggler -->
-        <div role="tablist" class="tabs tabs-boxed mb-6">
-            <a role="tab" id="daily-view-btn" class="tab tab-active">Absensi Harian</a>
-            <a role="tab" id="monthly-view-btn" class="tab">Rekap Bulanan</a>
-        </div>
-
-        <!-- Daily View -->
-        <div id="daily-view" class="space-y-6">
-            <div class="card bg-base-100 shadow">
-                <div class="card-body">
-                    <div class="flex justify-between items-center flex-wrap gap-4">
-                        <div class="form-control">
-                            <label class="label"><span class="label-text">Pilih Tanggal</span></label>
-                            <input type="date" id="attendance-date" class="input input-bordered">
-                        </div>
-                        <div class="form-control">
-                            <label class="label"><span class="label-text">Tambah Siswa Baru</span></label>
-                            <div class="join">
-                                <input type="text" id="new-student-name" placeholder="Nama Siswa" class="input input-bordered join-item">
-                                <button id="add-student-btn" class="btn btn-primary join-item">Tambah</button>
-                            </div>
-                        </div>
+        <main>
+            <div id="daily-view">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Absensi Harian</h2>
+                    <div class="flex items-center">
+                        <input type="date" id="date-picker" class="input input-bordered mr-2">
+                        <button id="add-student-btn" class="btn btn-accent">Tambah Siswa</button>
                     </div>
                 </div>
+                <div class="overflow-auto" style="max-height: 60vh;">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Siswa</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-list">
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="flex justify-between items-center flex-wrap gap-4">
-                <button id="mark-all-present-btn" class="btn btn-success">Hadirkan Semua</button>
-                <button id="export-daily-btn" class="btn btn-info">Export Harian (Excel)</button>
-            </div>
-            <div class="overflow-x-auto bg-base-100 rounded-lg shadow">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Siswa</th>
-                            <th class="text-center">Status (Klik untuk Ganti)</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="student-list">
-                        <!-- Student rows will be injected here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- Monthly View -->
-        <div id="monthly-view" class="hidden space-y-6">
-            <div class="card bg-base-100 shadow">
-                <div class="card-body">
-                    <div class="flex justify-between items-center flex-wrap gap-4">
-                        <div class="flex items-end gap-4 flex-wrap">
-                            <div class="form-control">
-                                <label class="label"><span class="label-text">Bulan</span></label>
-                                <select id="month-select" class="select select-bordered"></select>
-                            </div>
-                            <div class="form-control">
-                                <label class="label"><span class="label-text">Tahun</span></label>
-                                <select id="year-select" class="select select-bordered"></select>
-                            </div>
-                            <button id="show-recap-btn" class="btn btn-primary">Tampilkan Rekap</button>
-                        </div>
-                        <div class="flex items-end gap-4 flex-wrap">
-                            <button id="export-monthly-btn" class="btn btn-info">Export Rekap (Excel)</button>
-                            <button id="generate-summary-btn" class="btn btn-accent">Buat Ringkasan AI</button>
-                        </div>
+            <div id="monthly-view" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Laporan Bulanan</h2>
+                    <div>
+                        <select id="month-picker" class="select select-bordered">
+                            <option value="0">Januari</option>
+                            <option value="1">Februari</option>
+                            <option value="2">Maret</option>
+                            <option value="3">April</option>
+                            <option value="4">Mei</option>
+                            <option value="5">Juni</option>
+                            <option value="6">Juli</option>
+                            <option value="7">Agustus</option>
+                            <option value="8">September</option>
+                            <option value="9">Oktober</option>
+                            <option value="10">November</option>
+                            <option value="11">Desember</option>
+                        </select>
+                        <select id="year-picker" class="select select-bordered ml-2"></select>
+                        <button id="export-excel-btn" class="btn btn-success ml-2">Export ke Excel</button>
                     </div>
                 </div>
-            </div>
-            <div id="summary-container" class="card bg-base-100 shadow hidden">
-                <div class="card-body">
-                    <h2 class="card-title">Ringkasan AI</h2>
-                    <p id="summary-text" class="text-base-content text-sm whitespace-pre-wrap">Klik tombol "Buat Ringkasan AI" untuk melihat analisis.</p>
+                <div class="overflow-x-auto">
+                    <table class="table w-full table-zebra" id="monthly-report-table">
+                    </table>
                 </div>
             </div>
-            <div class="overflow-x-auto bg-base-100 rounded-lg shadow">
-                <table id="monthly-recap-table" class="table table-zebra table-pin-rows">
-                    <thead id="monthly-recap-header">
-                        <!-- Recap header will be injected here -->
-                    </thead>
-                    <tbody id="monthly-recap-body">
-                        <!-- Recap body will be injected here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="footer footer-center p-4 mt-6 text-base-content">
-            <div>
-                <p>&copy; 2024 Aplikasi Absensi Siswa - Didesain ulang dengan DaisyUI</p>
-            </div>
-        </footer>
+        </main>
     </div>
 
-    <!-- Generic Modal -->
-    <dialog id="generic-modal" class="modal">
+    <!-- Modal for input -->
+    <dialog id="input-modal" class="modal">
         <div class="modal-box">
             <h3 id="modal-title" class="font-bold text-lg"></h3>
             <p id="modal-text" class="py-4"></p>
-            <div id="modal-prompt-container" class="form-control w-full hidden">
-                <label class="label">
-                    <span id="modal-prompt-label" class="label-text"></span>
-                </label>
-                <input type="text" id="modal-prompt-input" class="input input-bordered w-full" />
-            </div>
+            <div id="modal-input-container"></div>
             <div class="modal-action">
-                <button id="modal-confirm-btn" class="btn btn-primary">Ya</button>
-                <button id="modal-cancel-btn" class="btn btn-ghost">Batal</button>
+                <button id="modal-cancel-btn" class="btn">Batal</button>
+                <button id="modal-ok-btn" class="btn btn-primary">OK</button>
             </div>
         </div>
     </dialog>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- DOM Elements ---
-        const modalOverlay = document.getElementById('modal-overlay');
-        const initialDataForm = document.getElementById('initial-data-form');
-        const teacherNameInput = document.getElementById('teacher-name-input');
-        const classNameInput = document.getElementById('class-name-input');
-        const appContainer = document.getElementById('app-container');
-        const classNameHeader = document.getElementById('class-name-header');
-        const teacherNameHeader = document.getElementById('teacher-name-header');
-        const logoutButton = document.getElementById('logout-button');
-        const dailyView = document.getElementById('daily-view');
-        const monthlyView = document.getElementById('monthly-view');
-        const dailyViewBtn = document.getElementById('daily-view-btn');
-        const monthlyViewBtn = document.getElementById('monthly-view-btn');
-        const attendanceDate = document.getElementById('attendance-date');
-        const studentList = document.getElementById('student-list');
-        const newStudentName = document.getElementById('new-student-name');
-        const addStudentBtn = document.getElementById('add-student-btn');
-        const markAllPresentBtn = document.getElementById('mark-all-present-btn');
-        const exportDailyBtn = document.getElementById('export-daily-btn');
-        const monthSelect = document.getElementById('month-select');
-        const yearSelect = document.getElementById('year-select');
-        const showRecapBtn = document.getElementById('show-recap-btn');
-        const monthlyRecapTable = document.getElementById('monthly-recap-table');
-        const monthlyRecapHeader = document.getElementById('monthly-recap-header');
-        const monthlyRecapBody = document.getElementById('monthly-recap-body');
-        const exportMonthlyBtn = document.getElementById('export-monthly-btn');
-        const generateSummaryBtn = document.getElementById('generate-summary-btn');
-        const summaryContainer = document.getElementById('summary-container');
-        const summaryText = document.getElementById('summary-text');
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = document.getElementById('app');
+            const teacherInfo = document.getElementById('teacher-info');
+            const classInfo = document.getElementById('class-info');
+            const logoutBtn = document.getElementById('logout-btn');
+            const addStudentBtn = document.getElementById('add-student-btn');
+            const studentList = document.getElementById('student-list');
+            const datePicker = document.getElementById('date-picker');
+            const dailyView = document.getElementById('daily-view');
+            const monthlyView = document.getElementById('monthly-view');
+            const dailyViewBtn = document.getElementById('daily-view-btn');
+            const monthlyViewBtn = document.getElementById('monthly-view-btn');
+            const monthPicker = document.getElementById('month-picker');
+            const yearPicker = document.getElementById('year-picker');
+            const monthlyReportTable = document.getElementById('monthly-report-table');
+            const exportExcelBtn = document.getElementById('export-excel-btn');
 
-        // --- Modal Elements ---
-        const genericModal = document.getElementById('generic-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalText = document.getElementById('modal-text');
-        const modalPromptContainer = document.getElementById('modal-prompt-container');
-        const modalPromptLabel = document.getElementById('modal-prompt-label');
-        const modalPromptInput = document.getElementById('modal-prompt-input');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+            const inputModal = document.getElementById('input-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalText = document.getElementById('modal-text');
+            const modalInputContainer = document.getElementById('modal-input-container');
+            const modalOkBtn = document.getElementById('modal-ok-btn');
+            const modalCancelBtn = document.getElementById('modal-cancel-btn');
 
-        // --- App State ---
-        let students = [];
-        let attendanceData = {};
-        const STATUSES = {
-            'TK': { name: 'Tanpa Keterangan', color: 'btn-ghost' },
-            'H': { name: 'Hadir', color: 'btn-success' },
-            'S': { name: 'Sakit', color: 'btn-warning' },
-            'I': { name: 'Izin', color: 'btn-info' },
-            'A': { name: 'Alfa', color: 'btn-error' }
-        };
-        const ORDERED_STATUS_KEYS = ['TK', 'H', 'S', 'I', 'A'];
+            let students = [];
+            let attendance = {};
+            let teacherName = '';
+            let className = '';
 
-        // --- Modal Logic ---
-        const showModal = (title, text, type = 'alert', onConfirm = () => {}, promptLabel = '') => {
-            modalTitle.textContent = title;
-            modalText.textContent = text;
-            
-            modalPromptContainer.classList.add('hidden');
-            modalPromptInput.value = '';
-
-            if (type === 'alert') {
-                modalCancelBtn.classList.add('hidden');
-                modalConfirmBtn.textContent = 'OK';
-            } else if (type === 'confirm') {
-                modalCancelBtn.classList.remove('hidden');
-                modalConfirmBtn.textContent = 'Ya';
-                modalCancelBtn.textContent = 'Batal';
-            } else if (type === 'prompt') {
-                modalPromptContainer.classList.remove('hidden');
-                modalPromptLabel.textContent = promptLabel;
-                modalCancelBtn.classList.remove('hidden');
-                modalConfirmBtn.textContent = 'Kirim';
-                modalCancelBtn.textContent = 'Batal';
-            }
-
-            genericModal.showModal();
-
-            // Clone and replace the button to remove old event listeners
-            const newConfirmBtn = modalConfirmBtn.cloneNode(true);
-            modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
-            
-            const newCancelBtn = modalCancelBtn.cloneNode(true);
-            modalCancelBtn.parentNode.replaceChild(newCancelBtn, modalCancelBtn);
-            
-            // Assign new references
-            const confirmBtn = document.getElementById('modal-confirm-btn');
-            const cancelBtn = document.getElementById('modal-cancel-btn');
-
-            const closeHandler = () => {
-                genericModal.close();
+            const statuses = ["Tanpa Keterangan", "Hadir", "Sakit", "Izin", "Alfa"];
+            const statusColors = {
+                "Hadir": "bg-green-500",
+                "Sakit": "bg-yellow-500",
+                "Izin": "bg-blue-500",
+                "Alfa": "bg-red-500",
+                "Tanpa Keterangan": "bg-gray-500"
             };
 
-            const confirmHandler = () => {
-                if (type === 'prompt') {
-                    onConfirm(modalPromptInput.value);
-                } else {
-                    onConfirm();
-                }
-                closeHandler();
-            };
+            function showModal(title, text, inputs, callback) {
+                modalTitle.textContent = title;
+                modalText.textContent = text;
+                modalInputContainer.innerHTML = '';
 
-            confirmBtn.addEventListener('click', confirmHandler);
-            cancelBtn.addEventListener('click', closeHandler);
-        };
+                inputs.forEach(input => {
+                    if (input.type === 'prompt') {
+                        const inputEl = document.createElement('input');
+                        inputEl.type = 'text';
+                        inputEl.id = input.id;
+                        inputEl.placeholder = input.placeholder;
+                        inputEl.className = 'input input-bordered w-full mt-2';
+                        if (input.value) {
+                            inputEl.value = input.value;
+                        }
+                        modalInputContainer.appendChild(inputEl);
+                    }
+                });
 
+                inputModal.showModal();
 
-        // --- Data Persistence ---
-        const loadDataFromStorage = () => {
-            students = JSON.parse(localStorage.getItem('students') || '[]');
-            attendanceData = JSON.parse(localStorage.getItem('attendanceData') || '{}');
-        };
-        const saveDataToStorage = () => {
-            localStorage.setItem('students', JSON.stringify(students));
-            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-        };
+                return new Promise((resolve) => {
+                    modalOkBtn.onclick = () => {
+                        const result = {};
+                        let allValid = true;
+                        inputs.forEach(input => {
+                            if (input.type === 'prompt') {
+                                const el = document.getElementById(input.id);
+                                if (el.value) {
+                                    result[input.id] = el.value;
+                                } else {
+                                    allValid = false;
+                                }
+                            }
+                        });
 
-        // --- Rendering ---
-        const renderStudents = () => {
-            const date = attendanceDate.value;
-            if (!attendanceData[date]) attendanceData[date] = {};
+                        if (allValid) {
+                            inputModal.close();
+                            resolve({
+                                confirmed: true,
+                                values: result
+                            });
+                        } else {
+                            // Maybe show an error message
+                        }
+                    };
 
-            studentList.innerHTML = '';
-            if (students.length === 0) {
-                studentList.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada siswa.</td></tr>';
-                return;
-            }
-
-            students.forEach((student, index) => {
-                const currentStatusKey = attendanceData[date][student] || 'TK';
-                const statusInfo = STATUSES[currentStatusKey];
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <th>${index + 1}</th>
-                    <td>${student}</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm w-32 ${statusInfo.color}" data-toggle-status-for-student="${student}">
-                            ${statusInfo.name}
-                        </button>
-                    </td>
-                    <td><button class="btn btn-xs btn-ghost" data-delete-student="${student}">Hapus</button></td>
-                `;
-                studentList.appendChild(tr);
-            });
-        };
-
-        const renderMonthlyRecap = () => {
-            const month = monthSelect.value;
-            const year = yearSelect.value;
-            if (!month || !year) return;
-            
-            const daysInMonth = new Date(year, month, 0).getDate();
-            monthlyRecapHeader.innerHTML = '<tr><th>Nama Siswa</th>' + Array.from({length: daysInMonth}, (_, i) => `<th>${i+1}</th>`).join('') + '</tr>';
-
-            monthlyRecapBody.innerHTML = '';
-            students.forEach(student => {
-                let row = `<td>${student}</td>`;
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const date = `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                    const status = (attendanceData[date] && attendanceData[date][student]) || '-';
-                    row += `<td>${status}</td>`;
-                }
-                monthlyRecapBody.innerHTML += `<tr>${row}</tr>`;
-            });
-        };
-
-        // --- UI Updates ---
-        const updateHeader = () => {
-            teacherNameHeader.textContent = `Guru: ${localStorage.getItem('teacherName') || 'Nama Guru'}`;
-            classNameHeader.textContent = `Kelas: ${localStorage.getItem('className') || 'Nama Kelas'}`;
-        };
-
-        const populateDateSelects = () => {
-            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            const currentMonth = new Date().getMonth();
-            monthSelect.innerHTML = months.map((m, i) => `<option value="${i + 1}" ${i === currentMonth ? 'selected' : ''}>${m}</option>`).join('');
-
-            const currentYear = new Date().getFullYear();
-            yearSelect.innerHTML = Array.from({length: 6}, (_, i) => `<option value="${currentYear - i}">${currentYear - i}</option>`).join('');
-        };
-
-        // --- Event Handlers ---
-        const handleInitialFormSubmit = (e) => {
-            e.preventDefault();
-            localStorage.setItem('teacherName', teacherNameInput.value.trim());
-            localStorage.setItem('className', classNameInput.value.trim());
-            modalOverlay.classList.add("hidden");
-            appContainer.classList.remove("hidden");
-            initApp();
-        };
-
-        const handleStudentListInteraction = (e) => {
-            const target = e.target.closest('button');
-            if (!target) return;
-
-            const studentToToggle = target.dataset.toggleStatusForStudent;
-            const studentToDelete = target.dataset.deleteStudent;
-
-            if (studentToToggle) {
-                const date = attendanceDate.value;
-                const currentStatus = attendanceData[date]?.[studentToToggle] || 'TK';
-                const currentIndex = ORDERED_STATUS_KEYS.indexOf(currentStatus);
-                const nextIndex = (currentIndex + 1) % ORDERED_STATUS_KEYS.length;
-                const nextStatus = ORDERED_STATUS_KEYS[nextIndex];
-                
-                if (!attendanceData[date]) attendanceData[date] = {};
-                attendanceData[date][studentToToggle] = nextStatus;
-                
-                saveDataToStorage();
-                renderStudents();
-            } else if (studentToDelete) {
-                showModal('Konfirmasi Hapus', `Yakin ingin menghapus siswa "${studentToDelete}"?`, 'confirm', () => {
-                    students = students.filter(s => s !== studentToDelete);
-                    Object.keys(attendanceData).forEach(date => delete attendanceData[date][studentToDelete]);
-                    saveDataToStorage();
-                    renderStudents();
+                    modalCancelBtn.onclick = () => {
+                        inputModal.close();
+                        resolve({
+                            confirmed: false
+                        });
+                    };
                 });
             }
-        };
 
-        const handleAddStudent = () => {
-            const name = newStudentName.value.trim();
-            if (name && !students.includes(name)) {
-                students.push(name);
-                newStudentName.value = '';
-                saveDataToStorage();
-                renderStudents();
-            } else if (students.includes(name)) {
-                showModal('Peringatan', 'Siswa dengan nama tersebut sudah ada.', 'alert');
+            function showConfirmation(title, text) {
+                modalTitle.textContent = title;
+                modalText.textContent = text;
+                modalInputContainer.innerHTML = '';
+
+                inputModal.showModal();
+
+                return new Promise((resolve) => {
+                    modalOkBtn.onclick = () => {
+                        inputModal.close();
+                        resolve(true);
+                    };
+                    modalCancelBtn.onclick = () => {
+                        inputModal.close();
+                        resolve(false);
+                    };
+                });
             }
-        };
-        
-        const handleMarkAllPresent = () => {
-            const date = attendanceDate.value;
-            if (!attendanceData[date]) attendanceData[date] = {};
-            students.forEach(student => { attendanceData[date][student] = 'H'; });
-            saveDataToStorage();
-            renderStudents();
-        };
 
-        const logout = () => {
-            showModal('Konfirmasi Keluar', 'Apakah Anda yakin ingin keluar? Semua data absensi akan dihapus.', 'confirm', () => {
-                localStorage.clear();
+            function showAlert(title, text) {
+                modalTitle.textContent = title;
+                modalText.textContent = text;
+                modalInputContainer.innerHTML = '';
+                modalCancelBtn.classList.add('hidden'); // Hide cancel button for alerts
+
+                inputModal.showModal();
+
+                return new Promise((resolve) => {
+                    modalOkBtn.onclick = () => {
+                        modalCancelBtn.classList.remove('hidden');
+                        inputModal.close();
+                        resolve(true);
+                    };
+                });
+            }
+
+
+            function getStorageKey(type) {
+                if (!teacherName || !className) return null;
+                return `${teacherName.replace(/\s/g, '_')}_${className.replace(/\s/g, '_')}_${type}`;
+            }
+
+            function loadData() {
+                const studentsKey = getStorageKey('students');
+                const attendanceKey = getStorageKey('attendance');
+
+                if (studentsKey && attendanceKey) {
+                    const savedStudents = localStorage.getItem(studentsKey);
+                    const savedAttendance = localStorage.getItem(attendanceKey);
+
+                    if (savedStudents) {
+                        students = JSON.parse(savedStudents);
+                    } else {
+                        students = [];
+                    }
+                    if (savedAttendance) {
+                        attendance = JSON.parse(savedAttendance);
+                    } else {
+                        attendance = {};
+                    }
+                }
+            }
+
+            function saveData() {
+                const studentsKey = getStorageKey('students');
+                const attendanceKey = getStorageKey('attendance');
+
+                if (studentsKey && attendanceKey) {
+                    localStorage.setItem(studentsKey, JSON.stringify(students));
+                    localStorage.setItem(attendanceKey, JSON.stringify(attendance));
+                }
+            }
+
+            function renderStudents() {
+                studentList.innerHTML = '';
+                const selectedDate = datePicker.value;
+                if (!attendance[selectedDate]) {
+                    attendance[selectedDate] = {};
+                }
+
+                students.forEach((student, index) => {
+                    const studentId = student.id;
+                    if (attendance[selectedDate][studentId] === undefined) {
+                        attendance[selectedDate][studentId] = "Tanpa Keterangan";
+                    }
+
+                    const currentStatus = attendance[selectedDate][studentId];
+                    const statusIndex = statuses.indexOf(currentStatus);
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${student.name}</td>
+                        <td>
+                            <button class="btn status-toggle ${statusColors[currentStatus]}" data-student-id="${studentId}">
+                                ${currentStatus}
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-error delete-student-btn" data-student-id="${studentId}">Hapus</button>
+                        </td>
+                    `;
+                    studentList.appendChild(row);
+                });
+                saveData();
+            }
+
+            function toggleStatus(studentId) {
+                const selectedDate = datePicker.value;
+                const currentStatus = attendance[selectedDate][studentId];
+                const currentStatusIndex = statuses.indexOf(currentStatus);
+                const nextStatusIndex = (currentStatusIndex + 1) % statuses.length;
+                attendance[selectedDate][studentId] = statuses[nextStatusIndex];
+                renderStudents();
+            }
+
+            async function addStudent() {
+                const {
+                    confirmed,
+                    values
+                } = await showModal(
+                    'Tambah Siswa Baru',
+                    'Masukkan nama siswa:',
+                    [{
+                        type: 'prompt',
+                        id: 'studentName',
+                        placeholder: 'Nama Siswa'
+                    }],
+                );
+
+                if (confirmed && values.studentName) {
+                    const newStudent = {
+                        id: Date.now(),
+                        name: values.studentName
+                    };
+                    students.push(newStudent);
+                    renderStudents();
+                }
+            }
+
+            async function deleteStudent(studentId) {
+                const confirmed = await showConfirmation('Hapus Siswa', 'Apakah Anda yakin ingin menghapus siswa ini?');
+                if (confirmed) {
+                    students = students.filter(s => s.id !== studentId);
+                    // Also remove from attendance records
+                    Object.keys(attendance).forEach(date => {
+                        delete attendance[date][studentId];
+                    });
+                    renderStudents();
+                }
+            }
+
+            function populateYearPicker() {
+                const currentYear = new Date().getFullYear();
+                for (let i = currentYear; i >= currentYear - 5; i--) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    yearPicker.appendChild(option);
+                }
+            }
+
+            function generateMonthlyReport() {
+                const month = monthPicker.value;
+                const year = yearPicker.value;
+                const daysInMonth = new Date(year, parseInt(month) + 1, 0).getDate();
+
+                let tableHtml = '<thead><tr><th>Nama Siswa</th>';
+                for (let day = 1; day <= daysInMonth; day++) {
+                    tableHtml += `<th>${day}</th>`;
+                }
+                tableHtml += '</tr></thead><tbody>';
+
+                students.forEach(student => {
+                    tableHtml += `<tr><td>${student.name}</td>`;
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const date = `${year}-${String(parseInt(month) + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        const status = attendance[date] ? (attendance[date][student.id] || '') : '';
+                        let statusInitial = '';
+                        switch (status) {
+                            case 'Hadir':
+                                statusInitial = 'H';
+                                break;
+                            case 'Sakit':
+                                statusInitial = 'S';
+                                break;
+                            case 'Izin':
+                                statusInitial = 'I';
+                                break;
+                            case 'Alfa':
+                                statusInitial = 'A';
+                                break;
+                            default:
+                                statusInitial = '-';
+                        }
+                        tableHtml += `<td>${statusInitial}</td>`;
+                    }
+                    tableHtml += '</tr>';
+                });
+
+                tableHtml += '</tbody>';
+                monthlyReportTable.innerHTML = tableHtml;
+            }
+
+            function exportToExcel() {
+                const monthName = monthPicker.options[monthPicker.selectedIndex].text;
+                const year = yearPicker.value;
+                const fileName = `Laporan_Absensi_${className}_${monthName}_${year}.xlsx`;
+                const wb = XLSX.utils.table_to_book(monthlyReportTable, {
+                    sheet: "Laporan Bulanan"
+                });
+                XLSX.writeFile(wb, fileName);
+            }
+
+            function initializeApp() {
+                teacherName = localStorage.getItem('teacherName');
+                className = localStorage.getItem('className');
+
+                if (teacherName && className) {
+                    app.classList.remove('hidden');
+                    teacherInfo.textContent = `Guru: ${teacherName}`;
+                    classInfo.textContent = `Kelas: ${className}`;
+                    datePicker.value = new Date().toISOString().split('T')[0];
+
+                    loadData();
+                    renderStudents();
+                    populateYearPicker();
+                    const now = new Date();
+                    monthPicker.value = now.getMonth();
+                    yearPicker.value = now.getFullYear();
+                    generateMonthlyReport();
+                } else {
+                    promptForLogin();
+                }
+            }
+
+            async function promptForLogin() {
+                const {
+                    confirmed,
+                    values
+                } = await showModal(
+                    'Selamat Datang',
+                    'Silakan masukkan nama guru dan kelas Anda untuk memulai.',
+                    [{
+                        type: 'prompt',
+                        id: 'teacherName',
+                        placeholder: 'Nama Guru'
+                    }, {
+                        type: 'prompt',
+                        id: 'className',
+                        placeholder: 'Nama Kelas'
+                    }]
+                );
+
+                if (confirmed && values.teacherName && values.className) {
+                    localStorage.setItem('teacherName', values.teacherName);
+                    localStorage.setItem('className', values.className);
+                    initializeApp();
+                }
+            }
+
+            function logout() {
+                localStorage.removeItem('teacherName');
+                localStorage.removeItem('className');
                 location.reload();
-            });
-        };
+            }
 
-        const toggleView = (viewToShow) => {
-            if (viewToShow === 'daily') {
+            // Event Listeners
+            logoutBtn.addEventListener('click', logout);
+            addStudentBtn.addEventListener('click', addStudent);
+            datePicker.addEventListener('change', renderStudents);
+
+            studentList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-student-btn')) {
+                    const studentId = parseInt(e.target.dataset.studentId);
+                    deleteStudent(studentId);
+                }
+                if (e.target.classList.contains('status-toggle')) {
+                    const studentId = parseInt(e.target.dataset.studentId);
+                    toggleStatus(studentId);
+                }
+            });
+
+            dailyViewBtn.addEventListener('click', () => {
                 dailyView.classList.remove('hidden');
                 monthlyView.classList.add('hidden');
-                dailyViewBtn.classList.add('tab-active');
-                monthlyViewBtn.classList.remove('tab-active');
-            } else {
-                dailyView.classList.add('hidden');
+                dailyViewBtn.classList.add('btn-primary');
+                monthlyViewBtn.classList.remove('btn-primary');
+            });
+
+            monthlyViewBtn.addEventListener('click', () => {
                 monthlyView.classList.remove('hidden');
-                dailyViewBtn.classList.remove('tab-active');
-                monthlyViewBtn.classList.add('tab-active');
-                renderMonthlyRecap();
-            }
-        };
+                dailyView.classList.add('hidden');
+                monthlyViewBtn.classList.add('btn-primary');
+                dailyViewBtn.classList.remove('btn-primary');
+                generateMonthlyReport();
+            });
 
-        // --- AI Summary ---
-        const generateAttendanceSummary = async () => {
-            showModal('Input API Key', 'Masukkan Google API Key Anda untuk membuat ringkasan.', 'prompt', async (apiKey) => {
-                if (!apiKey) {
-                    showModal('Informasi', 'Pembuatan ringkasan dibatalkan karena API Key tidak dimasukkan.', 'alert');
-                    return;
-                }
+            monthPicker.addEventListener('change', generateMonthlyReport);
+            yearPicker.addEventListener('change', generateMonthlyReport);
+            exportExcelBtn.addEventListener('click', exportToExcel);
 
-                summaryContainer.classList.remove('hidden');
-                summaryText.textContent = 'Membuat ringkasan, mohon tunggu...';
-                
-                const month = monthSelect.options[monthSelect.selectedIndex].text;
-                const year = yearSelect.value;
-                const promptData = `Buat ringkasan dan analisis data absensi kelas "${localStorage.getItem('className')}" (${localStorage.getItem('teacherName')}) bulan ${month} ${year}. Data JSON: ${JSON.stringify(attendanceData)}. Fokus pada: tingkat kehadiran, siswa paling sering absen (S, I, A), dan tren absensi. Beri kesimpulan dan saran.`;
-
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: promptData }] }] })
-                    });
-                    if (!response.ok) throw new Error((await response.json()).error.message);
-                    const data = await response.json();
-                    summaryText.textContent = data.candidates[0].content.parts[0].text;
-                } catch (error) {
-                    summaryText.textContent = `Gagal membuat ringkasan. Error: ${error.message}`;
-                }
-            }, 'Google API Key');
-        };
-
-        // --- Excel Export ---
-        const exportDaily = () => {
-            const date = attendanceDate.value;
-            const data = [["No", "Nama Siswa", "Status"]].concat(
-                students.map((student, index) => [
-                    index + 1,
-                    student,
-                    STATUSES[(attendanceData[date] && attendanceData[date][student]) || 'TK'].name
-                ])
-            );
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Absensi Harian");
-            XLSX.writeFile(wb, `absensi_harian_${date}.xlsx`);
-        };
-
-        const exportMonthly = () => {
-            const table = document.getElementById('monthly-recap-table');
-            const wb = XLSX.utils.table_to_book(table, {sheet: "Rekap Bulanan"});
-            XLSX.writeFile(wb, `rekap_absensi_${monthSelect.options[monthSelect.selectedIndex].text}_${yearSelect.value}.xlsx`);
-        };
-
-        // --- Initialization ---
-        const initApp = () => {
-            attendanceDate.valueAsDate = new Date();
-            populateDateSelects();
-            loadDataFromStorage();
-            updateHeader();
-            renderStudents();
-        };
-
-        const checkSession = () => {
-            if (localStorage.getItem('teacherName') && localStorage.getItem('className')) {
-                modalOverlay.classList.add('hidden');
-                appContainer.classList.remove('hidden');
-                initApp();
-            } else {
-                modalOverlay.classList.remove('hidden');
-                appContainer.classList.add('hidden');
-            }
-        };
-
-        // --- Event Listeners ---
-        initialDataForm.addEventListener('submit', handleInitialFormSubmit);
-        studentList.addEventListener('click', handleStudentListInteraction);
-        addStudentBtn.addEventListener('click', handleAddStudent);
-        newStudentName.addEventListener('keypress', (e) => e.key === 'Enter' && handleAddStudent());
-        markAllPresentBtn.addEventListener('click', handleMarkAllPresent);
-        attendanceDate.addEventListener('change', renderStudents);
-        logoutButton.addEventListener('click', logout);
-        dailyViewBtn.addEventListener('click', () => toggleView('daily'));
-        monthlyViewBtn.addEventListener('click', () => toggleView('monthly'));
-        showRecapBtn.addEventListener('click', renderMonthlyRecap);
-        exportDailyBtn.addEventListener('click', exportDaily);
-        exportMonthlyBtn.addEventListener('click', exportMonthly);
-        generateSummaryBtn.addEventListener('click', generateAttendanceSummary);
-
-        // Initial Load
-        checkSession();
-    });
+            // Initial load
+            initializeApp();
+        });
     </script>
 </body>
+
 </html>
